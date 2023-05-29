@@ -1,6 +1,13 @@
 {
+  "name": "beat-bar",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "nodemon app.js"
+  },
   "dependencies": {
     "essentia.js": "^0.1.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "nodemon": "^2.0.22"
   }
 }
