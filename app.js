@@ -3,6 +3,7 @@ function main(){
     const express = require('express')
 
     const essentia = new esPkg.Essentia(esPkg.EssentiaWASM);
+    const app = express()
 
 // prints version of the essentia wasm backend
     console.log(essentia.version)
@@ -10,12 +11,10 @@ function main(){
 // prints all the available algorithm methods in Essentia
     console.log(essentia.algorithmNames)
 
-    const app = express()
-    const port = 3000
+    const indexRoutes=require('./routing/index')
+    app.use('/', indexRoutes)
 
-    app.get('/', (req, res) => {
-        res.send('Hello World!')
-    })
+    const port = 3000
 
     app.listen(port, () => {
         console.log(`Example app listening on port ${port}`)
