@@ -1,4 +1,5 @@
 function main() {
+    require('dotenv').config()
     let esPkg = require('essentia.js');
     const express = require('express')
 
