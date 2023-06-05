@@ -61,7 +61,7 @@ function essentiaTestTwo(){
 
     const FRAME_SIZE = 2048;
     const HOP_SIZE = 1024;
-    const audioFilePath = path.join(__dirname,'../', './input/flute.mp3')
+    const audioFilePath = path.join(__dirname,'../', './input/storm-clouds-purpple-cat.mp3')
 
     var options = {};
     if (process.argv[2] !== undefined){
