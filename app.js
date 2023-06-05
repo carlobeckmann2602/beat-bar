@@ -1,4 +1,4 @@
-async function main() {
+function main() {
     let esPkg = require('essentia.js');
     const express = require('express')
 
