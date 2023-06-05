@@ -14,6 +14,8 @@ function main() {
 
     const indexRoutes = require('./routing/index')
     app.use('/', indexRoutes)
+    const getSongRoutes = require('./routing/get/song')
+    app.use('/api/get/song/', getSongRoutes)
 
     const port = 3000
 
