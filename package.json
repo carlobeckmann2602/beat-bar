@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon app.js",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "serve": "serve player/assets/songs"
   },
   "dependencies": {
     "benchmark": "^2.1.4",
@@ -15,6 +16,7 @@
     "nodemon": "^2.0.22",
     "pg": "^8.11.0",
     "prettier": "^2.8.8",
+    "serve": "^14.2.0",
     "web-audio-api": "^0.2.2"
   }
 }
