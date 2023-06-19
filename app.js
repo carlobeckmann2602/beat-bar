@@ -17,24 +17,18 @@ function main() {
 
   const getSongRoutes = require("./routing/get/song");
   app.use("/api/get/song/", getSongRoutes);
-  const postSongRoutes = require("./routing/post/song");
-  app.use("/api/post/song/", getSongRoutes);
 
   const getArtistRoutes = require("./routing/get/artist");
   app.use("/api/get/artist/", getArtistRoutes);
-  const postArtistRoutes = require("./routing/post/artist");
-  app.use("/api/post/artist/", postArtistRoutes);
 
   const getAlbumRoutes = require("./routing/get/album");
   app.use("/api/get/album/", getAlbumRoutes);
-  const postAlbumRoutes = require("./routing/post/album");
-  app.use("/api/post/album/", postAlbumRoutes);
 
   const port = 3000;
 
-  const core = require("./src/core");
+  const essentiaTest = require("./src/essentia");
   //essentiaTest(essentia)
-  core.testFour();
+  //essentiaTest.essentiaTestTwo()
 
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

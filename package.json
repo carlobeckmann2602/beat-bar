@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon app.js",
     "prettier": "prettier --write .",
-    "serve": "serve player/assets/songs"
+    "serve": "serve player/"
   },
   "dependencies": {
     "benchmark": "^2.1.4",
