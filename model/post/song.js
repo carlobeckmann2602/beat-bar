@@ -1,11 +1,11 @@
-const {Client} = require("pg");
+const { Client } = require("pg");
 const config = require("../config");
 
 async function addSong(song) {
-    const client = new Client(config)
-    client.connect()
-    let response = await client.query(
-        `INSERT INTO song(
+  const client = new Client(config);
+  client.connect();
+  let response = await client.query(
+    `INSERT INTO song(
             title, artist_id, album_id, year, duration)
         VALUES(
             '${song.title}',
@@ -14,7 +14,7 @@ async function addSong(song) {
             ${song.year},
             ${song.duration}
         );`
-    )
-    await client.end()
-    return response.rows[0]
+  );
+  await client.end();
+  return response.rows[0];
 }

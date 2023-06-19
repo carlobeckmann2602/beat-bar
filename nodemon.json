@@ -1,6 +1,4 @@
 {
   "verbose": true,
-  "ignore": [
-    "output"
-  ]
+  "ignore": ["output"]
 }
