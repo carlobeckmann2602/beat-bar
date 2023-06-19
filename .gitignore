@@ -10,7 +10,10 @@
 # testing
 /coverage
 /output
+
+# static files
 /input
+/player/assets/songs
 
 # production
 /build
