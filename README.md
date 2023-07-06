@@ -17,15 +17,17 @@ To run the project in Development:
 
 ## Django Server
 
-Is in directory 'beatbar_django' `cd beatbar_django`
-
 ### Activate Phython Enviorment
 
 Is in directory 'beatbar_env'
 
-run `source ./beatbar_env/bin/activate`
+(MacOS) run `source ./beatbar_env/bin/activate`
 
-or run `./beatbar_env/Scripts/activate`
+(Windows) or run `./beatbar_env/Scripts/activate`
+
+### Ins Verzeichnis des Servers wechseln
+
+Change to directory 'beatbar_django' `cd beatbar_django`
 
 ### Django Server starten Enviorment aktivieren
 
