@@ -22,8 +22,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('upload/', views.upload_file, name="Upload LoFi Songs"),
 
+    # General Routes
     re_path(r'^api/beatbar/$', views.beatbar_info),
+
+    # Song Routes
     re_path(r'^api/beatbar/song/$', views.song_list),
     re_path(r'^api/beatbar/song/([0-9]+)$', views.song_detail),
+
+    # Mood Routes
     re_path(r'^api/beatbar/mood/$', views.mood_list),
 ]
