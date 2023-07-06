@@ -1,0 +1,16 @@
+{
+  "headers":[
+    {
+      "source" : "**/*.@(mp3|wav|m4a|aac)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "max-age=7200"
+        },{
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
+}
