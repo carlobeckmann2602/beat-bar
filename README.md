@@ -1,19 +1,9 @@
 # beat.bar
 
-## Node
-
-Is in directory 'beatbar_node' `cd beatbar_node`
-
-### Installation
-
-1. run `npm install` to install all necessary packages
-2. install postgresql
-
-### Development
-
-To run the project in Development:
-
-1. run `npm start`
+To run beat.bar locally you need:
+1. The Django Backend (see: **Django Server** (requires python))
+2. The CDN Mockup (see: **CDN Server** (requires node and npm))
+3. The React Frontend (see: **React App** (requires node and npm))
 
 ## Django Server
 
@@ -37,6 +27,12 @@ Change to directory 'beatbar_django' `cd beatbar_django`
    - Username: admin
    - Password: admin
 4. upload new songs on '/upload'
+
+## CDN Server
+
+1. cd to `beatbar_cdn`
+2. run `npm install`
+3. run `npm start`
 
 ## React App
 
