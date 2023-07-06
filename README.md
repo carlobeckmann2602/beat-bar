@@ -25,6 +25,8 @@ Is in directory 'beatbar_env'
 
 run `source ./beatbar_env/bin/activate`
 
+or run `./beatbar_env/Scripts/activate`
+
 ### Django Server starten Enviorment aktivieren
 
 1. run `python manage.py runserver` in 'beatbar_django' directory
