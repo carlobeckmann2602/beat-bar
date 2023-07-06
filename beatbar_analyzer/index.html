@@ -8,10 +8,27 @@
     <title>Beat.bar Analyzer Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/essentia.js@latest/dist/essentia-wasm.web.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/essentia.js@latest/dist/essentia.js-core.js"></script></head>
+    <link rel="stylesheet" href="style.css">
 <body>
     <h1>Beatbar Analyzer Tool</h1>
-    <label for="continue-button">Verwendung des Audio Context im Browser zulasen und Analyse starten</label>
-    <button id="continue-button">Bestätigen</button>
+    <div class="app">
+        <div class="settings">
+            <form>
+                <h2>Settings</h2>
+                <label for="continue-button">Verwendung des Audio Context im Browser zulasen und Analyse starten</label>
+                <button type="button" id="continue-button">Bestätigen und Analyse starten</button>
+            </form>
+            <form>
+                <h2>Upload</h2>
+                <button type="button">Upload Data</button>
+            </form>
+        </div>
+        <div>
+            <h2>Alogrithm Output View</h2>
+            <code id="algorithm-output"></code>
+        </div>
+    </div>
+
     <script src="scripts/script.js"></script>
 </body>
 </html>

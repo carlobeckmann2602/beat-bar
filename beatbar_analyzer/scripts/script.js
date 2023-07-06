@@ -2,6 +2,10 @@ const continueButton = document.getElementById('continue-button')
 if(continueButton){
   continueButton.addEventListener('click', ()=> continueHandler())
 }
+const algorithmOutput = document.getElementById('algorithm-output')
+if(!algorithmOutput){
+  console.error("The Algorithm Output View could not be found!")
+}
 
 let essentia;
 EssentiaWASM().then( (EssentiaWasm)=>{
@@ -14,6 +18,7 @@ EssentiaWASM().then( (EssentiaWasm)=>{
 const audioCtx = new AudioContext();
 
 function continueHandler(){
+  console.log("Starting")
   audioCtx.resume().then((res)=>{
     console.log("Audio Context has been resumed! ", res)
     analyze()
@@ -50,8 +55,9 @@ async function analyze() {
   let outputRG = essentia.ReplayGain(inputSignalVector, // input
     44100); // sampleRate (parameter optional)
 
-
+  let _innerHtml = algorithmOutput.innerHTML
   console.log("outputRG.replayGain: ", outputRG.replayGain);
+  algorithmOutput.innerHTML = _innerHtml + JSON.stringify(outputRG.replayGain)
 
   // Running PitchYinProbabilistic algorithm on an input audio signal vector
   // check https://essentia.upf.edu/reference/std_PitchYinProbabilistic.html
@@ -67,8 +73,11 @@ async function analyze() {
   let pitches = essentia.vectorToArray(outputPyYin.pitch);
   let voicedProbabilities = essentia.vectorToArray(outputPyYin.voicedProbabilities);
 
-  console.log(pitches);
-  console.log(voicedProbabilities);
+  _innerHtml = algorithmOutput.innerHTML
+  algorithmOutput.innerHTML = _innerHtml + JSON.stringify(pitches)
+
+  _innerHtml = algorithmOutput.innerHTML
+  algorithmOutput.innerHTML = _innerHtml + JSON.stringify(voicedProbabilities)
 
   outputPyYin.pitch.delete()
   outputPyYin.voicedProbabilities.delete()

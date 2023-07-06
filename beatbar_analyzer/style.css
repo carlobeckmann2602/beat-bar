@@ -1,0 +1,25 @@
+.app{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+h2{
+    margin: 0 0 10px 0;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+form > * {
+    width: 200px;
+    margin-bottom: 10px;
+}
+
+#algorithm-output{
+    display: block;
+    width: 800px;
+    height: 600px;
+    overflowY: scroll;
+    border: 2px solid black;
+}
