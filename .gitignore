@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /beatbar_cdn/node_modules
+/beatbar_env/Lib/site-packages
 /.pnp
 .pnp.js
 
