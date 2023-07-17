@@ -1,0 +1,13 @@
+.developer-options{
+    width: 800px;
+    height: 540px;
+    align-self: center;
+    background: var(--bb-light-grey-color);
+    display: flex;
+    flex-direction: column;
+}
+
+h2, p, label{
+    color: black;
+}
+
