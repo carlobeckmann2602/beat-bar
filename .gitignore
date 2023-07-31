@@ -14,6 +14,7 @@
 # static files
 /input
 /player/assets/songs
+/beatbar_cdn/content
 
 # production
 /build
