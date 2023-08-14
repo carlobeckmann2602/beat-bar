@@ -1,68 +1,72 @@
-body{
-    font-family: 'Space Mono', sans-serif;
-    font-weight: 400;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color: var(--bb-light-grey-color);
-    text-shadow: var(--bb-violet-shadow);
+body {
+  font-family: "Space Mono", sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--bb-light-grey-color);
+  text-shadow: var(--bb-violet-shadow);
 }
 
-h1, h2, h3, h4, h5, h6{
-    margin: 0;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
 }
 
-.app{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 100vw;
-    height: 100vh;
-    background: black;
-    padding: 40px;
-    box-sizing: border-box;
+.app {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  padding: 40px;
+  box-sizing: border-box;
 }
 
 .top-line {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 }
-.bottom-line{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.control-options{
-    list-style-type: none;
+.bottom-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.control-option-label{
-    color: var(--bb-violet-color);
-    text-shadow: var(--bb-violet-shadow);
+.control-options {
+  list-style-type: none;
 }
 
-.mood-selector{
-    font-family: 'Space Mono', sans-serif;
-    font-weight: 400;
-    color: var(--bb-light-grey-color);
-    text-shadow: var(--bb-violet-shadow);
+.control-option-label {
+  color: var(--bb-violet-color);
+  text-shadow: var(--bb-violet-shadow);
 }
 
-.control-options{
-    font-family: 'Space Mono', sans-serif;
-    font-weight: 400;
-    color: var(--bb-light-grey-color);
-    text-shadow: var(--bb-violet-shadow);
+.mood-selector {
+  font-family: "Space Mono", sans-serif;
+  font-weight: 400;
+  color: var(--bb-light-grey-color);
+  text-shadow: var(--bb-violet-shadow);
 }
 
-
-.developer-options-trigger{
-    cursor: pointer;
+.control-options {
+  font-family: "Space Mono", sans-serif;
+  font-weight: 400;
+  color: var(--bb-light-grey-color);
+  text-shadow: var(--bb-violet-shadow);
 }
 
-.control-buttons{
-    cursor: pointer;
+.developer-options-trigger {
+  cursor: pointer;
 }
-.current-song{
-    text-align: center;
+
+.control-buttons {
+  cursor: pointer;
+}
+.current-song {
+  text-align: center;
 }

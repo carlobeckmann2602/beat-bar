@@ -1,8 +1,7 @@
-import './style.css'
-import {ALL_SONGS, Song} from "../../types";
+import "./style.css";
+import { ALL_SONGS } from "../../types";
 
 export default function DeveloperOptions(props: any) {
-
   return (
     <div className="developer-options">
       <h2>Developer Options</h2>
@@ -10,36 +9,33 @@ export default function DeveloperOptions(props: any) {
         <p>Select a song, init the player and click play</p>
         <select
           //@ts-ignore
-          onChange={(e)=>props.setCurrentSong(e.nativeEvent.target?.value)}
+          onChange={(e) => props.setCurrentSong(e.nativeEvent.target?.value)}
         >
-          {
-            ALL_SONGS.map(song=>{
-              return (
-                <option
-                  key={song.url}
-                  value={JSON.stringify(song)}
-                >
-                  {song.title} - {song.artist}
-                </option>
-              )
-            })
-          }
+          {ALL_SONGS.map((song) => {
+            return (
+              <option key={song.url} value={JSON.stringify(song)}>
+                {song.title} - {song.artist}
+              </option>
+            );
+          })}
         </select>
         <button
           id="initialize-button"
           disabled={!props.currentSong}
           onClick={() => {
-            props.initializePlayer()
+            props.initializePlayer();
           }}
-        >Init Player and load song
+        >
+          Init Player and load song
         </button>
         <button
           disabled={!props.nodesInitialized}
           id="play-pause-button"
           onClick={() => {
-            props.isPlaying ? props.pause() : props.play()
+            props.isPlaying ? props.pause() : props.play();
           }}
-        >Play/Pause
+        >
+          Play/Pause
         </button>
       </fieldset>
       <p>Doubleclick a slider to reset</p>
@@ -51,10 +47,10 @@ export default function DeveloperOptions(props: any) {
           max="100"
           value={props.volume}
           onChange={(e) => {
-            props.adjustVolume(parseInt(e.target.value))
+            props.adjustVolume(parseInt(e.target.value));
           }}
           onDoubleClick={() => {
-            props.adjustVolume(50)
+            props.adjustVolume(50);
           }}
         />
         <label htmlFor="volume">VOL</label>
@@ -67,10 +63,10 @@ export default function DeveloperOptions(props: any) {
           min="-100"
           max="100"
           onChange={(e) => {
-            props.adjustPanorama(parseInt(e.target.value))
+            props.adjustPanorama(parseInt(e.target.value));
           }}
           onDoubleClick={() => {
-            props.adjustPanorama(0)
+            props.adjustPanorama(0);
           }}
           value={props.panorama}
         />
@@ -84,10 +80,10 @@ export default function DeveloperOptions(props: any) {
           min="1"
           max="100"
           onChange={(e) => {
-            props.adjustSpeed(parseInt(e.target.value))
+            props.adjustSpeed(parseInt(e.target.value));
           }}
           onDoubleClick={() => {
-            props.adjustSpeed(50)
+            props.adjustSpeed(50);
           }}
           value={props.speed * 50}
         />
@@ -101,10 +97,10 @@ export default function DeveloperOptions(props: any) {
           min="-12"
           max="12"
           onChange={(e) => {
-            props.adjustPitch(parseInt(e.target.value))
+            props.adjustPitch(parseInt(e.target.value));
           }}
           onDoubleClick={() => {
-            props.adjustPitch(0)
+            props.adjustPitch(0);
           }}
           value={props.pitch}
         />
@@ -119,5 +115,5 @@ export default function DeveloperOptions(props: any) {
         <p>Playing? {props.isPlaying ? "Playing" : "Paused"}</p>
       </fieldset>
     </div>
-  )
+  );
 }

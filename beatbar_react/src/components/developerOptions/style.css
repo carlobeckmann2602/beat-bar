@@ -1,13 +1,14 @@
-.developer-options{
-    height: 66vh;
-    align-self: center;
-    background: var(--bb-light-grey-color);
-    display: flex;
-    flex-direction: column;
-    overflow-y: scroll;
+.developer-options {
+  height: 66vh;
+  align-self: center;
+  background: var(--bb-light-grey-color);
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
 }
 
-h2, p, label{
-    color: black;
+h2,
+p,
+label {
+  color: black;
 }
-
