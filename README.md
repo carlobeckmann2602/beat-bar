@@ -1,9 +1,14 @@
 # beat.bar
 
 To run beat.bar locally you need:
-1. The Django Backend (see: **Django Server** (requires python))
-2. The CDN Mockup (see: **CDN Server** (requires node and npm))
-3. The React Frontend (see: **React App** (requires node and npm))
+1. The Django Backend (see: **Django Server** (requires python)). Therefore, check the following points:
+- Python needs to installed
+
+2. The CDN Mockup (see: **CDN Server** (requires node and npm)). Therefore, check the following points:
+- Node needs to installed in v 16 or later
+
+3. The React Frontend (see: **React App** (requires node and npm)). Therefore, check the following points:
+- Node needs to installed in v 16 or later
 
 ## Django Server
 
@@ -30,15 +35,15 @@ Change to directory 'beatbar_django' `cd beatbar_django`
 
 ## CDN Server
 
-1. cd to `beatbar_cdn`
-2. run `npm install`
-3. run `npm start`
+1. Open a new terminal in the directory where this readme file is also located
+2. Change the directory. I.e. by running: `cd beatbar_cdn`
+3. Run `npm install` to install the node dependencies. 
+4. Once the installation step has finished, run `npm start` to start the application
+
+The console should now promt that an application is serving content on 'http://localhost:3001'
 
 ## React App
 
-Is in directory 'beatbar_react' `cd beatbar_react`
-
-### Installation
-
-1. run `yarn install` to install all necessary packages
-2. run `yarn start`
+1. Move into the directory by running `cd beatbar_react`
+2. run `yarn install` to install all necessary packages 
+3. run `yarn start`
