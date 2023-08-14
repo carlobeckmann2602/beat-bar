@@ -1,10 +1,10 @@
 .developer-options{
-    width: 800px;
-    height: 540px;
+    height: 66vh;
     align-self: center;
     background: var(--bb-light-grey-color);
     display: flex;
     flex-direction: column;
+    overflow-y: scroll;
 }
 
 h2, p, label{
