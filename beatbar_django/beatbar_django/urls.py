@@ -25,10 +25,11 @@ urlpatterns = [
     # General Routes
     re_path(r'^api/beatbar/$', views.beatbar_info),
 
-    # Song Routes
-    re_path(r'^api/beatbar/song/$', views.song_list),
-    re_path(r'^api/beatbar/song/([0-9]+)$', views.song_detail),
+    # GET Routes
+    re_path(r'^api/getnextsong/([0-9]+)$', views.next_song),
 
-    # Mood Routes
-    re_path(r'^api/beatbar/mood/$', views.mood_list),
+    # POST Routes
+    re_path(r'^api/post/register/$', views.register),
+    re_path(r'^api/post/setmood/$', views.set_mood),
+    re_path(r'^api/post/song/$', views.add_song),
 ]
