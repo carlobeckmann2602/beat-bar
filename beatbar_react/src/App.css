@@ -16,15 +16,16 @@ h6 {
   margin: 0;
 }
 
-.app {
+.content {
+  position: absolute;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 100vw;
   height: 100vh;
-  background: black;
   padding: 40px;
   box-sizing: border-box;
+  z-index: 2;
 }
 
 .top-line {
@@ -46,13 +47,6 @@ h6 {
   text-shadow: var(--bb-violet-shadow);
 }
 
-.mood-selector {
-  font-family: "Space Mono", sans-serif;
-  font-weight: 400;
-  color: var(--bb-light-grey-color);
-  text-shadow: var(--bb-violet-shadow);
-}
-
 .control-options {
   font-family: "Space Mono", sans-serif;
   font-weight: 400;
@@ -67,6 +61,12 @@ h6 {
 .control-buttons {
   cursor: pointer;
 }
+
+.control-buttons > img {
+  filter: invert(1) drop-shadow(var(--bb-violet-shadow));
+}
+
 .current-song {
   text-align: center;
+  text-shadow: var(--bb-violet-shadow);
 }

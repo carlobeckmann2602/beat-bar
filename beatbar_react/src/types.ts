@@ -41,3 +41,10 @@ export const ALL_SONGS = [
     url: "http://localhost:3001/watr-fluid_itswatr.mp3",
   },
 ];
+
+export enum MOODS {
+  sad = "sad",
+  chill = "chill",
+  focused = "focused",
+  happy = "happy"
+}

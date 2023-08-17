@@ -1,0 +1,23 @@
+.background{
+    position: absolute;
+    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: black;
+    display: flex;
+}
+
+.backgroundImage{
+    width: 100vw;
+    object-fit: cover;
+}
+
+.fadeIn{
+    opacity: 1;
+    transition: 2000ms ease-in-out;
+}
+.fadeOut{
+    opacity: 0;
+    transition: 2000ms ease-in-out;
+}

@@ -47,7 +47,7 @@ Variables
   /*
     shadows
    */
-  --bb-violet-shadow: 0px 0px 20px 0px #9747ffd8;
+  --bb-violet-shadow: 0 1px 10px #9747ff;
 }
 
 body {

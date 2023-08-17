@@ -3,7 +3,18 @@ import DeveloperOptions from "./components/developerOptions";
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
 import { ALL_SONGS, AllSongsUrls, Song } from "./types";
-import { Decibels } from "tone/build/esm/core/type/Units";
+import Background from "./components/background/background";
+
+import playIcon from '../src/assets/icons/play.svg'
+import pauseIcon from '../src/assets/icons/pause.svg'
+import skipIcon from '../src/assets/icons/skip.svg'
+import previousIcon from '../src/assets/icons/previous.svg'
+import volumeLow from '../src/assets/icons/volume-low.svg'
+import volumeMedium from '../src/assets/icons/volume-medium.svg'
+import volumeHigh from '../src/assets/icons/volume-high.svg'
+import MoodSelector from "./components/moodSelector/moodSelector";
+import ConsentBanner from "./components/consentBanner/consentBanner";
+import Cookies from 'universal-cookie';
 
 export default function App() {
   const [showDeveloperOptions, setShowDeveloperOptions] = useState(false);
@@ -20,13 +31,58 @@ export default function App() {
   const [pitch, setPitch] = useState<number>(0);
   const [pitchNode, setPitchNode] = useState<Tone.PitchShift>();
 
-  document.getElementsByTagName("body")[0]?.addEventListener(
-    "keydown",
-    (event) => {
-      console.log(event);
-    },
-    false,
-  );
+  const [consentGiven, setConsentGiven] = useState(false)
+  const [uuid, setUuid] = useState<string>()
+
+  let bodyNode: HTMLBodyElement | undefined = undefined;
+
+  function keyboardHandler(event: KeyboardEvent){
+    if (event.code === 'Space'){
+      console.log("play pause")
+    }
+    if (event.code === 'KeyS'){
+      console.log("sad mood")
+    }
+    if (event.code === 'KeyC'){
+      console.log("chill mood")
+    }
+    if (event.code === 'KeyF'){
+      console.log("focused mood")
+    }
+    if (event.code === 'KeyH'){
+      console.log("happy mood")
+    }
+    if (event.code === 'ArrowLeft'){
+      console.log("previous mood")
+    }
+    if (event.code === 'ArrowRight'){
+      console.log("next mood")
+    }
+  }
+
+  useEffect(()=>{
+    const cookies = new Cookies()
+    let consentGivenCookie = cookies.get('beatbar-consentGiven')
+    if(consentGivenCookie){
+      setConsentGiven(true)
+    }
+    let uuidCookie = cookies.get('beatbar-uuid')
+    if(uuidCookie){
+      setUuid(uuidCookie)
+    }
+  },[])
+
+  useEffect(()=>{
+    if(!bodyNode){
+      bodyNode = document.getElementsByTagName("body")[0]
+      bodyNode.addEventListener(
+        "keydown",
+        (event) => {
+          keyboardHandler(event)
+        },
+      );
+    }
+  }, [])
 
   useEffect(() => {
     play();
@@ -45,6 +101,8 @@ export default function App() {
       setNodesInitialized(true);
     }
   }, [pitchNode, players]);
+
+
 
   function initializePlayer() {
     let allSongsUrls: AllSongsUrls = {};
@@ -132,77 +190,100 @@ export default function App() {
     setSpeed(_speed / 50);
   }
 
+  function handleSetConsentGiven(mode: boolean){
+    setConsentGiven(mode)
+    const cookies = new Cookies();
+    cookies.set('beatbar-consentGiven', 'true', { path: '/', expires: new Date(Date.now() + 31556926000) });
+  }
+
   return (
     <div className="app">
-      <div className="top-line">
-        <div className="mood-selector">mood: focused</div>
-        <h1>beat.bar</h1>
-        <ul className="control-options">
-          <li>
-            <span className="control-option-label">spacebar</span> play/pause
-          </li>
-          <li>
-            <span className="control-option-label">arrows</span> change mood
-          </li>
-          <li>
-            <span className="control-option-label">s</span> sad mood
-          </li>
-          <li>
-            <span className="control-option-label">c</span> chill mood
-          </li>
-          <li>
-            <span className="control-option-label">f</span> focused mood
-          </li>
-          <li>
-            <span className="control-option-label">h</span> happy mood
-          </li>
-        </ul>
-      </div>
-      <div style={{ visibility: showDeveloperOptions ? "visible" : "hidden" }}>
-        <DeveloperOptions
-          initializePlayer={initializePlayer}
-          play={play}
-          pause={pause}
-          player={player}
-          players={players}
-          setPlayer={setPlayer}
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-          currentSong={currentSong}
-          setCurrentSong={handleSetCurrentSong}
-          nodesInitialized={nodesInitialized}
-          setNodesInitialized={setNodesInitialized}
-          volume={volume}
-          adjustVolume={adjustVolume}
-          panorama={panorama}
-          adjustPanorama={adjustPanorama}
-          speed={speed}
-          adjustSpeed={adjustSpeed}
-          pitch={pitch}
-          adjustPitch={adjustPitch}
-          pitchNode={pitchNode}
-          setPitchNode={setPitchNode}
-        />
-      </div>
-      <div className="bottom-line">
-        <div
-          className="developer-options-trigger"
-          onClick={() => {
-            setShowDeveloperOptions(!showDeveloperOptions);
-          }}
-        >
-          Developer Options
+      {
+        !consentGiven?
+          <ConsentBanner
+            setConsentGiven={handleSetConsentGiven}
+          />:
+          <></>
+      }
+      <Background />
+      <div className="content">
+        <div className="top-line">
+          <div>
+            <MoodSelector />
+          </div>
+          <h1>beat.bar</h1>
+          <ul className="control-options">
+            <li>
+              <span className="control-option-label">spacebar</span> play/pause
+            </li>
+            <li>
+              <span className="control-option-label">arrows</span> change mood
+            </li>
+            <li>
+              <span className="control-option-label">s</span> sad mood
+            </li>
+            <li>
+              <span className="control-option-label">c</span> chill mood
+            </li>
+            <li>
+              <span className="control-option-label">f</span> focused mood
+            </li>
+            <li>
+              <span className="control-option-label">h</span> happy mood
+            </li>
+          </ul>
         </div>
-        <div className="control-buttons">ply pre nxt vol</div>
-        <div className="current-song">
-          {currentSong
-            ? `currently playing: ${currentSong.title} by ${currentSong.artist}`
-            : "No song playing"}
-          <br />
-          {nextSong
-            ? `comming up: ${nextSong.title} by ${nextSong.artist}`
-            : "No song in queue"}
-          <br />
+        <div style={{ visibility: showDeveloperOptions ? "visible" : "hidden" }}>
+          <DeveloperOptions
+            initializePlayer={initializePlayer}
+            play={play}
+            pause={pause}
+            player={player}
+            players={players}
+            setPlayer={setPlayer}
+            isPlaying={isPlaying}
+            setIsPlaying={setIsPlaying}
+            currentSong={currentSong}
+            setCurrentSong={handleSetCurrentSong}
+            nodesInitialized={nodesInitialized}
+            setNodesInitialized={setNodesInitialized}
+            volume={volume}
+            adjustVolume={adjustVolume}
+            panorama={panorama}
+            adjustPanorama={adjustPanorama}
+            speed={speed}
+            adjustSpeed={adjustSpeed}
+            pitch={pitch}
+            adjustPitch={adjustPitch}
+            pitchNode={pitchNode}
+            setPitchNode={setPitchNode}
+          />
+        </div>
+        <div className="bottom-line">
+          <div
+            className="developer-options-trigger"
+            onClick={() => {
+              setShowDeveloperOptions(!showDeveloperOptions);
+            }}
+          >
+            Developer Options
+          </div>
+          <div className="control-buttons">
+            <img src={isPlaying?pauseIcon:playIcon} alt={"play pause icon to play or pause the current song"} />
+            <img src={previousIcon} alt={"previous icon to jump to the previous song"} />
+            <img src={skipIcon} alt={"skip icon to jump to the next song"} />
+            <img src={volumeMedium} alt={"volume icon to control the volume"} />
+          </div>
+          <div className="current-song">
+            {currentSong
+              ? `currently playing: ${currentSong.title} by ${currentSong.artist}`
+              : "No song playing"}
+            <br />
+            {nextSong
+              ? `comming up: ${nextSong.title} by ${nextSong.artist}`
+              : "No song in queue"}
+            <br />
+          </div>
         </div>
       </div>
     </div>

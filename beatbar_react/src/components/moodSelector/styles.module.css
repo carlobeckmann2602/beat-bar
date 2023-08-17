@@ -1,0 +1,28 @@
+.moodSelector {
+    font-family: "Space Mono", sans-serif;
+    font-weight: 400;
+    color: var(--bb-light-grey-color);
+    text-shadow: var(--bb-violet-shadow);
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+}
+
+.moodSelectorSelected{
+    margin-left: 10px;
+    width: 80px;
+}
+
+.moodSelectorOption{
+    width: 80px;
+    margin: 0 0 0 10px;
+    padding: 0;
+    list-style-type: none;
+}
+.moodSelectorOption > li{
+    margin-bottom: 5px;
+}
+
+.moodSelectorOptionUnselected{
+    color: darkgrey;
+}
