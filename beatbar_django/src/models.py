@@ -29,6 +29,7 @@ class Song(models.Model):
 class EssentiaProperties(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     bpm = models.IntegerField()
+    key = models.CharField(max_length=200)
 
     def __str__(self):
         return 'EssentiaProperties of ' + self.song.title

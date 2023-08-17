@@ -40,7 +40,7 @@ def add_song_to_database(song_data):
             duration = song_data['duration']
         )
         essentia_properties_filter = EssentiaProperties.objects.filter(song = Song.objects.get(song_id = song_data['song_id']))
-        essentia_properties_filter.update(bpm = song_data['essentia_properties']['bpm'])
+        essentia_properties_filter.update(bpm = song_data['essentia_properties']['bpm'], key = song_data['essentia_properties']['key'])
     else:
         song = Song(
             song_id = song_data['song_id'],
@@ -51,7 +51,7 @@ def add_song_to_database(song_data):
             duration = song_data['duration']
         )
         song.save()
-        essentia_properties = EssentiaProperties(song = song, bpm = song_data['essentia_properties']['bpm'])
+        essentia_properties = EssentiaProperties(song = song, bpm = song_data['essentia_properties']['bpm'], key = song_data['essentia_properties']['key'])
         essentia_properties.save()
 
     return artist.pk, album.pk

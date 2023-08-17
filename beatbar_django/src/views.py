@@ -83,11 +83,11 @@ def next_song(request, pk):
     next_song_id = playlist.next_song_id
     next_song_object = Song.objects.get(song_id = next_song_id)
     next_song_properties = EssentiaProperties.objects.get(song = next_song_object)
-    next_song_bpm = next_song_properties.bpm
 
     response = {
-        'song_id': next_song_id, 
-        'bpm': next_song_bpm
+        'song_id': next_song_id,
+        'bpm': next_song_properties.bpm,
+        'key': next_song_properties.key
     }
     return Response(response, status=status.HTTP_200_OK)
 
