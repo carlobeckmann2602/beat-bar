@@ -14,6 +14,7 @@ To run beat.bar locally you need:
 
 ### Activate Phython Enviorment
 
+Make sure to add the path to your python installation and its version in `beatbar_env/pyvenv.cfg`
 Is in directory 'beatbar_env'
 
 (MacOS) run `source ./beatbar_env/bin/activate`
