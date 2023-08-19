@@ -48,3 +48,18 @@ export enum MOODS {
   focused = "focused",
   happy = "happy"
 }
+
+export enum BeatbarPlayerErrorNames {
+  INTERNAL_SERVER_ERROR= 'Internal Server Error',
+  RESOURCE_NOT_FOUND = 'Resource not found',
+  AUTHENTICATION_ERROR = 'Authentication Error',
+  AUTHORIZATION_ERROR = 'Authorization Error',
+  UNKNOWN_ERROR = 'Unknown Error'
+}
+
+export type BeatbarPlayerError = {
+  code: number,
+  name: BeatbarPlayerErrorNames,
+  description: string,
+  isFatal: boolean
+}

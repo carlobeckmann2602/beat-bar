@@ -1,20 +1,19 @@
 import "./App.css";
 import DeveloperOptions from "./components/developerOptions";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import * as Tone from "tone";
-import { ALL_SONGS, AllSongsUrls, Song } from "./types";
+import {ALL_SONGS, AllSongsUrls, BeatbarPlayerError, BeatbarPlayerErrorNames, Song} from "./types";
 import Background from "./components/background/background";
 
 import playIcon from '../src/assets/icons/play.svg'
 import pauseIcon from '../src/assets/icons/pause.svg'
 import skipIcon from '../src/assets/icons/skip.svg'
 import previousIcon from '../src/assets/icons/previous.svg'
-import volumeLow from '../src/assets/icons/volume-low.svg'
 import volumeMedium from '../src/assets/icons/volume-medium.svg'
-import volumeHigh from '../src/assets/icons/volume-high.svg'
 import MoodSelector from "./components/moodSelector/moodSelector";
 import ConsentBanner from "./components/consentBanner/consentBanner";
 import Cookies from 'universal-cookie';
+import axios from "axios";
 
 export default function App() {
   const [showDeveloperOptions, setShowDeveloperOptions] = useState(false);
@@ -33,6 +32,10 @@ export default function App() {
 
   const [consentGiven, setConsentGiven] = useState(false)
   const [uuid, setUuid] = useState<string>()
+  const [error, setError] = useState<(BeatbarPlayerError | undefined)>(undefined)
+
+  const apiBaseUrl = process.env.REACT_APP_DEV_API_BASE_URL??'http://localhost:8000/api/'
+
 
   let bodyNode: HTMLBodyElement | undefined = undefined;
 
@@ -69,6 +72,54 @@ export default function App() {
     let uuidCookie = cookies.get('beatbar-uuid')
     if(uuidCookie){
       setUuid(uuidCookie)
+    } else {
+      axios.post(
+        `${apiBaseUrl}post/register/`,
+        null,
+        {
+          headers: {
+            Accept: "application/json",
+            "X-Beatbar-ApiToken":process.env.REACT_APP_API_AUTH_TOKEN
+          }
+        }
+      ).then((res)=>{
+        if(res.status === 201){
+          setUuid(res.data.user_id)
+        }
+      }).catch(err=>{
+        if(err.status === 500){
+          setError({
+            code: 500,
+            name: BeatbarPlayerErrorNames.INTERNAL_SERVER_ERROR,
+            description: "Something went wrong on the server. Please try again later.",
+            isFatal: false
+          })
+        }
+        if(err.status === 404){
+          setError({
+            code: 404,
+            name: BeatbarPlayerErrorNames.RESOURCE_NOT_FOUND,
+            description: "The requested Resource could not be found on the server. Please try something else.",
+            isFatal: false
+          })
+        }
+        if(err.status === 403){
+          setError({
+            code: 403,
+            name: BeatbarPlayerErrorNames.AUTHORIZATION_ERROR,
+            description: "You are not authorized to request this resource",
+            isFatal: false
+          })
+        }
+        if(err.status === 401){
+          setError({
+            code: 401,
+            name: BeatbarPlayerErrorNames.AUTHENTICATION_ERROR,
+            description: "You are not authenticated correctly to request this resource",
+            isFatal: false
+          })
+        }
+      })
     }
   },[])
 
@@ -83,6 +134,13 @@ export default function App() {
       );
     }
   }, [])
+
+  useEffect(()=>{
+    if(uuid && uuid!==""){
+      const cookies = new Cookies();
+      cookies.set('beatbar-uuid', uuid, { path: '/', expires: new Date(Date.now() + 31556926000) });
+    }
+  }, [uuid])
 
   useEffect(() => {
     play();
