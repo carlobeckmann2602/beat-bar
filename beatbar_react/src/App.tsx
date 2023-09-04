@@ -1,6 +1,6 @@
 import "./App.css";
 import DeveloperOptions from "./components/developerOptions";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
 import {ALL_SONGS, AllSongsUrls, BeatbarPlayerError, BeatbarPlayerErrorNames, Song} from "./types";
 import Background from "./components/background/background";
@@ -9,11 +9,14 @@ import playIcon from '../src/assets/icons/play.svg'
 import pauseIcon from '../src/assets/icons/pause.svg'
 import skipIcon from '../src/assets/icons/skip.svg'
 import previousIcon from '../src/assets/icons/previous.svg'
+import volumeLow from '../src/assets/icons/volume-low.svg'
 import volumeMedium from '../src/assets/icons/volume-medium.svg'
+import volumeHigh from '../src/assets/icons/volume-high.svg'
 import MoodSelector from "./components/moodSelector/moodSelector";
 import ConsentBanner from "./components/consentBanner/consentBanner";
 import Cookies from 'universal-cookie';
 import axios from "axios";
+import VolumeControl from "./components/volumeControl/volumeControl";
 
 export default function App() {
   const [showDeveloperOptions, setShowDeveloperOptions] = useState(false);
@@ -30,7 +33,7 @@ export default function App() {
   const [pitch, setPitch] = useState<number>(0);
   const [pitchNode, setPitchNode] = useState<Tone.PitchShift>();
 
-  const [consentGiven, setConsentGiven] = useState(false)
+  const [consentGiven, setConsentGiven] = useState<boolean>()
   const [uuid, setUuid] = useState<string>()
   const [error, setError] = useState<(BeatbarPlayerError | undefined)>(undefined)
 
@@ -66,13 +69,20 @@ export default function App() {
   useEffect(()=>{
     const cookies = new Cookies()
     let consentGivenCookie = cookies.get('beatbar-consentGiven')
-    if(consentGivenCookie){
+    if(consentGivenCookie === "true"){
       setConsentGiven(true)
+      console.log("consent has been given. Will set it now in state")
     }
+  },[])
+
+  useEffect(()=>{
+    const cookies = new Cookies()
     let uuidCookie = cookies.get('beatbar-uuid')
     if(uuidCookie){
       setUuid(uuidCookie)
+      console.log("uuid has been found. Will set it now in state")
     } else {
+      console.log("uuid has not been found. Will request it now")
       axios.post(
         `${apiBaseUrl}post/register/`,
         null,
@@ -87,6 +97,15 @@ export default function App() {
           setUuid(res.data.user_id)
         }
       }).catch(err=>{
+        console.log(err)
+        if(err.code==="ERR_NETWORK"){
+          setError({
+            code: 503,
+            name: BeatbarPlayerErrorNames.INTERNAL_SERVER_ERROR,
+            description: "The Server is currently not available. Try again later.",
+            isFatal: false
+          })
+        }
         if(err.status === 500){
           setError({
             code: 500,
@@ -123,35 +142,19 @@ export default function App() {
     }
   },[])
 
-  useEffect(()=>{
-    if(!bodyNode){
-      bodyNode = document.getElementsByTagName("body")[0]
-      bodyNode.addEventListener(
-        "keydown",
-        (event) => {
-          keyboardHandler(event)
-        },
-      );
-    }
-  }, [])
-
-  useEffect(()=>{
-    if(uuid && uuid!==""){
-      const cookies = new Cookies();
-      cookies.set('beatbar-uuid', uuid, { path: '/', expires: new Date(Date.now() + 31556926000) });
-    }
-  }, [uuid])
-
+  // Play a song when its put into the current song state
   useEffect(() => {
     play();
   }, [currentSong]);
 
+  // set the pitch node
   useEffect(() => {
     if (pitchNode) {
       pitchNode.pitch = pitch;
     }
   }, [pitch]);
 
+  // init the pitch node
   useEffect(() => {
     if (pitchNode && players) {
       players.connect(pitchNode);
@@ -293,6 +296,7 @@ export default function App() {
         </div>
         <div style={{ visibility: showDeveloperOptions ? "visible" : "hidden" }}>
           <DeveloperOptions
+            setShowDeveloperOptions={setShowDeveloperOptions}
             initializePlayer={initializePlayer}
             play={play}
             pause={pause}
@@ -315,6 +319,10 @@ export default function App() {
             adjustPitch={adjustPitch}
             pitchNode={pitchNode}
             setPitchNode={setPitchNode}
+            uuid={uuid}
+            consentGiven={consentGiven}
+            error={error}
+            setError={setError}
           />
         </div>
         <div className="bottom-line">
@@ -330,7 +338,7 @@ export default function App() {
             <img src={isPlaying?pauseIcon:playIcon} alt={"play pause icon to play or pause the current song"} />
             <img src={previousIcon} alt={"previous icon to jump to the previous song"} />
             <img src={skipIcon} alt={"skip icon to jump to the next song"} />
-            <img src={volumeMedium} alt={"volume icon to control the volume"} />
+            <VolumeControl />
           </div>
           <div className="current-song">
             {currentSong

@@ -60,6 +60,8 @@ h6 {
 
 .control-buttons {
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .control-buttons > img {

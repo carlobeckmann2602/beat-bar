@@ -13,13 +13,19 @@
 .consentBanner{
     width: 750px;
     height: 450px;
-    background: white;
+    background: black;
     border-radius: 20px;
     padding: 50px;
     position: relative;
 }
 
+.consentBannerTitle, .consentBannerParagraph{
+    color: white;
+}
+
 .consentBannerButton{
+    font-family: "Space Mono", sans-serif;
+    font-size: 1.2em;
     width: 120px;
     height: 40px;
     border: none;

@@ -1,0 +1,65 @@
+.volumeControl{
+    position: relative;
+    top: 0;
+    width: 48px;
+    height: 48px;
+}
+
+.volumeControl > img{
+    filter: invert(1) drop-shadow(var(--bb-violet-shadow));
+    position: absolute;
+    z-index: 2;
+    top: 0;
+}
+
+.volumeBar{
+    display: flex;
+}
+
+.volumeSettings{
+    position: absolute;
+    left: 52px;
+    height: 48px;
+    width: 200px;
+    opacity: 1;
+    transition: 200ms;
+    display: flex;
+    align-items: center;
+}
+
+.volumeOffIcon{
+    filter: invert(1) drop-shadow(var(--bb-violet-shadow));
+    width: 24px;
+}
+
+
+.hidden{
+    left: -60px;
+    opacity: 0;
+    transition: 200ms;
+    z-index: 1;
+}
+
+.levelBar{
+    height: 1.5em;
+    width: 4px;
+    background: white;
+    border-radius: 2px;
+    box-shadow: var(--bb-violet-shadow);
+}
+
+.inactive{
+     background: var(--bb-dark-grey-color);
+     opacity: .5;
+ }
+
+
+.levelBarTrigger{
+    width: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.levelBarTrigger:active{
+    cursor: default;
+}

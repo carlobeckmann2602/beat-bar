@@ -1,14 +1,30 @@
 .developer-options {
-  height: 66vh;
+  height: 50vh;
+  width: 80%;
+  margin: 0 auto;
   align-self: center;
   background: var(--bb-light-grey-color);
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
+  padding: 48px;
 }
 
 h2,
 p,
 label {
   color: black;
+}
+
+.developer-options-headline{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.developer-options-headline>button{
+  border: none;
+  background: none;
+  cursor: pointer;
 }

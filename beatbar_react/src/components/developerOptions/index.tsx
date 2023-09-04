@@ -1,10 +1,14 @@
 import "./style.css";
+import closeIcon from "../../assets/icons/close.svg"
 import { ALL_SONGS } from "../../types";
 
 export default function DeveloperOptions(props: any) {
   return (
     <div className="developer-options">
-      <h2>Developer Options</h2>
+      <div className="developer-options-headline">
+        <h2>Developer Options</h2>
+        <button type={'button'} onClick={()=>props.setShowDeveloperOptions(false)}><img style={{ color: "black" }} src={closeIcon} alt={"close icon to close the dev tools"} /></button>
+      </div>
       <fieldset>
         <p>Select a song, init the player and click play</p>
         <select
@@ -114,6 +118,13 @@ export default function DeveloperOptions(props: any) {
         <p>Pitch: {props.pitch}</p>
         <p>Playing? {props.isPlaying ? "Playing" : "Paused"}</p>
       </fieldset>
+      <p>Consent Given: {props.consentGiven?"true":"false"}</p>
+      <p>UUID: {props.uuid}</p>
+      <div>
+        <h3>Errors?</h3>
+        <pre style={{color: "black", textShadow: 'unset', width: '100%'}}>{JSON.stringify(props.error)}</pre>
+        <button onClick={()=>props.setError(undefined)}>Clear error</button>
+      </div>
     </div>
   );
 }
