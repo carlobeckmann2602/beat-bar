@@ -28,7 +28,7 @@ function continueHandler(){
 async function analyze() {
   console.log("audioCtx: ", audioCtx)
 
-  const audioURL = "http://localhost:3001/storm-clouds-purpple-cat.mp3" //"https://freesound.org/data/previews/328/328857_230356-lq.mp3";
+  const audioURL = "http://localhost:3001/storm-clouds_purpple-cat.mp3" //"https://freesound.org/data/previews/328/328857_230356-lq.mp3";
 
   console.log("audioUrl: ", audioURL)
   if(!audioURL){

@@ -14,21 +14,73 @@
     <div class="app">
         <div class="settings">
             <form>
-                <h2>Settings</h2>
-                <label for="continue-button">Verwendung des Audio Context im Browser zulasen und Analyse starten</label>
-                <button type="button" id="continue-button">Bestätigen und Analyse starten</button>
+                <h2>1. Input</h2>
+                <fieldset>
+                    <label for="input-url">URL des zu analysierenden Songs festlegen:</label>
+                    <input type="text" id="input-url" />
+                </fieldset>
+                <button id="set-input-button" type="button">Festlegen</button>
             </form>
+            <br/>
             <form>
-                <h2>Upload</h2>
-                <button type="button">Upload Data</button>
+                <h2>2. Analyse starten</h2>
+                <fieldset>
+                    <label for="allow-audio-context">Verwendung des Audio Context im Browser zulassen</label>
+                    <input id="allow-audio-context" type="checkbox" onclick="handleAllowAudioContext(event)">
+                </fieldset>
+                <button type="button" id="continue-button">Analyse starten</button>
             </form>
+            <br/>
+            <form>
+                <h2>3. Upload</h2>
+                <fieldset>
+                    <label for="post-header">API Token angeben</label>
+                    <textarea id="post-header"></textarea>
+                </fieldset>
+                <fieldset>
+                    <label for="post-route">Post Route bestimmen</label>
+                    <input type="text" id="post-route" />
+                </fieldset>
+                <button type="button">Ergebnisse hochladen</button>
+            </form>
+            <p id="progress-spinner" class="hidden">Analysis in progress - please wait</p>
         </div>
-        <div>
-            <h2>Alogrithm Output View</h2>
-            <code id="algorithm-output"></code>
+        <div class="output">
+            <h2>Essentia Output</h2>
+            <p>Essentia Analyse Ergebnisse für: <a href="" target="_blank" id="output-input-url"></a></p>
+            <h3>Harmonics</h3>
+            <ul>
+                <li>
+                    Grundton: <span id="output-key"></span>
+                </li>
+                <li>
+                    Tonart: <span id="output-scale"></span>
+                </li>
+                <li>
+                    Genauigkeit(?) (Key & Scale): <span id="output-key-scale-strength"></span>
+                </li>
+            </ul>
+            <h3>Dauer und Tempo</h3>
+            <ul>
+                <li>
+                    Dauer (in Sekunden): <span id="output-duration"></span>
+                </li>
+                <li>
+                    BPM: <span id="output-bpm"></span>
+                </li>
+            </ul>
+            <h3>Berechnete Eigenschaften</h3>
+            <ul>
+                <li>
+                    Energie: <span id="output-energy"></span>
+                </li>
+                <li>
+                    Tanzbarkeit: <span id="output-danceability"></span>
+                </li>
+            </ul>
         </div>
     </div>
 
-    <script src="scripts/script.js"></script>
+    <script src="scripts/extractor.js"></script>
 </body>
 </html>
