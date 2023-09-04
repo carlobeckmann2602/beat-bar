@@ -21,11 +21,13 @@ Is in directory 'beatbar_env'
 
 (Windows) or run `./beatbar_env/Scripts/activate`
 
-### Ins Verzeichnis des Servers wechseln
+A Python virtual environment should now have been started in the terminal. Use the terminal for the following two Python steps:
+
+### Change into the django directory
 
 Change to directory 'beatbar_django' `cd beatbar_django`
 
-### Django Server starten Enviorment aktivieren
+### Django Server starten Environment aktivieren
 
 1. run `python manage.py runserver` in 'beatbar_django' directory
 2. server runs on localhost:8000
