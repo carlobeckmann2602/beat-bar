@@ -30,4 +30,4 @@ class EssentiaPropertiesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EssentiaProperties
-        fields = ['song', 'bpm']
+        fields = ['song', 'key', 'scale', 'key_scale_strength', 'bpm', 'energy', 'danceability']
