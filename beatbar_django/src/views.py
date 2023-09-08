@@ -47,6 +47,12 @@ def upload_file(request):
         form = FileFieldForm()
     return render(request, 'upload.html', {'form': form})
 
+api_token = ''
+
+def checkApiToken(request):
+    token = request.META.get('HTTP_X_BEATBAR_APITOKEN')
+    return token == api_token
+
 
 
 # REST-API
@@ -75,8 +81,9 @@ def beatbar_info(request):
 
 @api_view(['GET'])
 def next_song(request, pk):
+    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     try:
-        playlist = Playlist.objects.get(id = pk)
+        playlist = Playlist.objects.get(id = request.query_params.get('playlist_id'))
     except Playlist.DoesNotExist:
         return Response({'error': f'Playlist with ID: {pk} does not exists.'}, status=status.HTTP_400_BAD_REQUEST)
     
@@ -86,8 +93,13 @@ def next_song(request, pk):
 
     response = {
         'song_id': next_song_id,
+        'duration': next_song_object.duration,
+        'key': next_song_properties.key,
+        'scale': next_song_properties.scale,
+        'key_scale_strength': next_song_properties.key_scale_strength, 
         'bpm': next_song_properties.bpm,
-        'key': next_song_properties.key
+        'energy': next_song_properties.energy,
+        'danceability': next_song_properties.danceability,
     }
     return Response(response, status=status.HTTP_200_OK)
 
@@ -95,6 +107,7 @@ def next_song(request, pk):
 
 @api_view(['POST'])
 def register(request):
+    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     new_user = User(playlist=None)
     new_user.save()
     uuid = new_user.id
@@ -106,6 +119,7 @@ def register(request):
 
 @api_view(['POST'])
 def set_mood(request):
+    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     uuid = request.META.get('HTTP_X_BEATBAR_UUID')
     if uuid is not None:
         try:
@@ -117,7 +131,7 @@ def set_mood(request):
     
     mood = request.data['mood']
     playlist_id = change_users_mood(user, mood)
-    print(playlist_id)
+    #print(playlist_id)
 
     response = {
         'playlist_id': playlist_id
@@ -126,6 +140,7 @@ def set_mood(request):
 
 @api_view(['POST'])
 def add_song(request):
+    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     artist_id, album_id = add_song_to_database(request.data)
 
     response = {
@@ -133,6 +148,17 @@ def add_song(request):
         'album_id': album_id,
     }
     return Response(response, status=status.HTTP_201_CREATED)
+    
+@api_view(['POST', 'PUT'])
+def update_song_properties(request):
+    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    song_id = request.query_params.get('song_id')
+    print(song_id)
+    properties = request.data['essentia_properties']
+    update_properties(song_id, properties)
+    return Response('Properties are updated', status=status.HTTP_200_OK)
+
+    
     
 """@api_view(['GET', 'POST'])
 def song_list(request):

@@ -39,8 +39,7 @@ def add_song_to_database(song_data):
             year = song_data['year'],
             duration = song_data['duration']
         )
-        essentia_properties_filter = EssentiaProperties.objects.filter(song = Song.objects.get(song_id = song_data['song_id']))
-        essentia_properties_filter.update(bpm = song_data['essentia_properties']['bpm'], key = song_data['essentia_properties']['key'])
+        update_properties(song_data['song_id'], song_data['essentia_properties'])
     else:
         song = Song(
             song_id = song_data['song_id'],
@@ -51,7 +50,33 @@ def add_song_to_database(song_data):
             duration = song_data['duration']
         )
         song.save()
-        essentia_properties = EssentiaProperties(song = song, bpm = song_data['essentia_properties']['bpm'], key = song_data['essentia_properties']['key'])
+        essentia_properties = EssentiaProperties(song = song, 
+                                                 key = song_data['essentia_properties']['key'], 
+                                                 scale = song_data['essentia_properties']['scale'], 
+                                                 key_scale_strength = song_data['essentia_properties']['key_scale_strength'], 
+                                                 bpm = song_data['essentia_properties']['bpm'], 
+                                                 energy = song_data['essentia_properties']['energy'], 
+                                                 danceability = song_data['essentia_properties']['danceability'])
         essentia_properties.save()
 
     return artist.pk, album.pk
+
+def update_properties(song_id, properties):
+    song = Song.objects.get(song_id = song_id)
+    if EssentiaProperties.objects.filter(song = song):
+        essentia_properties_filter = EssentiaProperties.objects.filter(song = song)
+        essentia_properties_filter.update(key = properties['key'], 
+                                          scale = properties['scale'], 
+                                          key_scale_strength = properties['key_scale_strength'], 
+                                          bpm = properties['bpm'], 
+                                          energy = properties['energy'], 
+                                          danceability = properties['danceability'])
+    else:
+        essentia_properties = EssentiaProperties(song = song,
+                                                 key = properties['key'], 
+                                                 scale = properties['scale'], 
+                                                 key_scale_strength = properties['key_scale_strength'], 
+                                                 bpm = properties['bpm'], 
+                                                 energy = properties['energy'], 
+                                                 danceability = properties['danceability'])
+        essentia_properties.save()

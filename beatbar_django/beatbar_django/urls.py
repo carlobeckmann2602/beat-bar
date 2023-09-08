@@ -26,10 +26,11 @@ urlpatterns = [
     re_path(r'^api/beatbar/$', views.beatbar_info),
 
     # GET Routes
-    re_path(r'^api/getnextsong/([0-9]+)$', views.next_song),
+    re_path(r'^api/getnextsong/$', views.next_song),
 
     # POST Routes
     re_path(r'^api/post/register/$', views.register),
     re_path(r'^api/post/setmood/$', views.set_mood),
     re_path(r'^api/post/song/$', views.add_song),
+    re_path(r'^api/post/properties/$', views.update_song_properties),
 ]
