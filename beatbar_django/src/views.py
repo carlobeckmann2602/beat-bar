@@ -59,6 +59,7 @@ def checkApiToken(request):
 
 @api_view(['GET'])
 def beatbar_info(request):
+    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     if request.method == 'GET':
         song_data = Song.objects.all()
         album_data = Album.objects.all()
@@ -81,7 +82,7 @@ def beatbar_info(request):
 
 @api_view(['GET'])
 def next_song(request, pk):
-    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     try:
         playlist = Playlist.objects.get(id = request.query_params.get('playlist_id'))
     except Playlist.DoesNotExist:
@@ -107,7 +108,7 @@ def next_song(request, pk):
 
 @api_view(['POST'])
 def register(request):
-    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     new_user = User(playlist=None)
     new_user.save()
     uuid = new_user.id
@@ -140,7 +141,7 @@ def set_mood(request):
 
 @api_view(['POST'])
 def add_song(request):
-    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     artist_id, album_id = add_song_to_database(request.data)
 
     response = {
@@ -151,7 +152,7 @@ def add_song(request):
     
 @api_view(['POST', 'PUT'])
 def update_song_properties(request):
-    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     song_id = request.query_params.get('song_id')
     print(song_id)
     properties = request.data['essentia_properties']
