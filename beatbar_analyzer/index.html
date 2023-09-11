@@ -7,8 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Beat.bar Analyzer Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/essentia.js@latest/dist/essentia-wasm.web.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/essentia.js@latest/dist/essentia.js-core.js"></script></head>
+    <script src="https://cdn.jsdelivr.net/npm/essentia.js@latest/dist/essentia.js-core.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" href="style.css">
+</head>
+
 <body>
     <h1>Beatbar Analyzer Tool</h1>
     <div class="app">
@@ -35,13 +38,13 @@
                 <h2>3. Upload</h2>
                 <fieldset>
                     <label for="post-header">API Token angeben</label>
-                    <textarea id="post-header"></textarea>
+                    <input id="post-header" type="text" value="YEGmtC4QKGIQQK4qGuRD55q48JIkKazWEnDvQIcDYaA=" />
                 </fieldset>
                 <fieldset>
                     <label for="post-route">Post Route bestimmen</label>
                     <input type="text" id="post-route" />
                 </fieldset>
-                <button type="button">Ergebnisse hochladen</button>
+                <button type="button" onclick="postResults()">Ergebnisse hochladen</button>
             </form>
             <p id="progress-spinner" class="hidden">Analysis in progress - please wait</p>
         </div>
