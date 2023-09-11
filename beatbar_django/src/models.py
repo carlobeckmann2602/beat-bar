@@ -21,7 +21,7 @@ class Song(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.SET_NULL, null=True)
     album = models.ForeignKey(Album, on_delete=models.SET_NULL, null=True)
     year = models.DateField("Year published")
-    duration = models.IntegerField()
+    duration = models.FloatField()
 
     def __str__(self):
         return self.title + ' by ' + self.artist.name
@@ -30,10 +30,10 @@ class EssentiaProperties(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     key = models.CharField(max_length=200)
     scale = models.CharField(max_length=200)
-    key_scale_strength = models.IntegerField()
-    bpm = models.IntegerField()
-    energy = models.IntegerField()
-    danceability = models.IntegerField()
+    key_scale_strength = models.FloatField()
+    bpm = models.FloatField()
+    energy = models.FloatField()
+    danceability = models.FloatField()
 
     def __str__(self):
         return 'EssentiaProperties of ' + self.song.title
