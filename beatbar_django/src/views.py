@@ -120,7 +120,7 @@ def register(request):
 
 @api_view(['POST'])
 def set_mood(request):
-    if checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     uuid = request.META.get('HTTP_X_BEATBAR_UUID')
     if uuid is not None:
         try:
@@ -153,9 +153,9 @@ def add_song(request):
 @api_view(['POST', 'PUT'])
 def update_song_properties(request):
     if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
-    song_id = request.query_params.get('song_id')
+    song_id = str(request.query_params.get('song_id'))
     print(song_id)
-    properties = request.data['essentia_properties']
+    properties = dict(request.data['essentia_properties'])
     update_properties(song_id, properties)
     return Response('Properties are updated', status=status.HTTP_200_OK)
 
