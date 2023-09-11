@@ -47,7 +47,7 @@ def upload_file(request):
         form = FileFieldForm()
     return render(request, 'upload.html', {'form': form})
 
-api_token = ''
+api_token = 'YEGmtC4QKGIQQK4qGuRD55q48JIkKazWEnDvQIcDYaA='
 
 def checkApiToken(request):
     token = request.META.get('HTTP_X_BEATBAR_APITOKEN')
