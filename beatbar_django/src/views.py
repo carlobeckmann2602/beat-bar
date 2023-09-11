@@ -81,16 +81,19 @@ def beatbar_info(request):
 # GET Routes
 
 @api_view(['GET'])
-def next_song(request, pk):
+def next_song(request):
     if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    playlist_id = request.query_params.get('playlist_id')
     try:
-        playlist = Playlist.objects.get(id = request.query_params.get('playlist_id'))
+        playlist = Playlist.objects.get(id = playlist_id)
     except Playlist.DoesNotExist:
-        return Response({'error': f'Playlist with ID: {pk} does not exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': f'Playlist with ID: {playlist_id} does not exists.'}, status=status.HTTP_400_BAD_REQUEST)
     
     next_song_id = playlist.next_song_id
     next_song_object = Song.objects.get(song_id = next_song_id)
     next_song_properties = EssentiaProperties.objects.get(song = next_song_object)
+
+    playlist.update_next_song(next_song_object)
 
     response = {
         'song_id': next_song_id,

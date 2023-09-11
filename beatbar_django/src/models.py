@@ -43,6 +43,17 @@ class Playlist(models.Model):
     next_song_id = models.CharField(max_length=200)
     songs = models.ManyToManyField(Song)
 
+    def update_next_song(self, previous_song):
+        playlist_songs = self.songs.all()
+        song = playlist_songs[0]
+        idx = 0
+        while(song.id != previous_song.id):
+            idx = (idx + 1) % len(playlist_songs)
+            song = playlist_songs[idx]
+        self.next_song_id = playlist_songs[(idx + 1) % len(playlist_songs)].song_id
+        self.save()
+
+
     def __str__(self):
         return 'Playlist ' + str(self.id)
     
