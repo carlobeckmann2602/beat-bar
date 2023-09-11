@@ -12,7 +12,7 @@ def create_new_playlist(mood):
     return
 
 def change_users_mood(user, mood):
-    return -1
+    return 1
 
 def add_song_to_database(song_data):
     print(song_data['essentia_properties'])
