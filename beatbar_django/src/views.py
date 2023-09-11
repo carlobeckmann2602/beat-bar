@@ -9,7 +9,7 @@ from .beatbar import *
 from django.views.generic.edit import FormView
 from .forms import FileFieldForm
 from django.http import HttpResponseRedirect
-
+import django.core.exceptions as DjangoException
 from collections import OrderedDict
 
 from .models import *
@@ -49,17 +49,24 @@ def upload_file(request):
 
 api_token = 'YEGmtC4QKGIQQK4qGuRD55q48JIkKazWEnDvQIcDYaA='
 
-def checkApiToken(request):
+def check_api_token(request):
     token = request.META.get('HTTP_X_BEATBAR_APITOKEN')
     return token == api_token
 
+def get_user_with_uuid(request):
+    uuid = request.META.get('HTTP_X_BEATBAR_UUID')
+    if uuid is not None:
+        user = User.objects.get(id=uuid)
+    else:
+        raise User.DoesNotExist
+    return user
 
 
 # REST-API
 
 @api_view(['GET'])
 def beatbar_info(request):
-    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     if request.method == 'GET':
         song_data = Song.objects.all()
         album_data = Album.objects.all()
@@ -82,7 +89,7 @@ def beatbar_info(request):
 
 @api_view(['GET'])
 def next_song(request):
-    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     playlist_id = request.query_params.get('playlist_id')
     try:
         playlist = Playlist.objects.get(id = playlist_id)
@@ -111,7 +118,7 @@ def next_song(request):
 
 @api_view(['POST'])
 def register(request):
-    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     new_user = User(playlist=None)
     new_user.save()
     uuid = new_user.id
@@ -123,19 +130,14 @@ def register(request):
 
 @api_view(['POST'])
 def set_mood(request):
-    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
-    uuid = request.META.get('HTTP_X_BEATBAR_UUID')
-    if uuid is not None:
-        try:
-            user = User.objects.get(id=uuid)
-        except User.DoesNotExist:
-            return Response({'error': 'UUID does not exists.'}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({'error': 'No UUID given.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        user = get_user_with_uuid(request)
+    except (User.DoesNotExist, DjangoException.ValidationError):
+        return Response({'error': 'User with this UUID does not exists.'}, status=status.HTTP_400_BAD_REQUEST)
     
     mood = request.data['mood']
     playlist_id = change_users_mood(user, mood)
-    #print(playlist_id)
 
     response = {
         'playlist_id': playlist_id
@@ -144,7 +146,7 @@ def set_mood(request):
 
 @api_view(['POST'])
 def add_song(request):
-    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     artist_id, album_id = add_song_to_database(request.data)
 
     response = {
@@ -155,57 +157,9 @@ def add_song(request):
     
 @api_view(['POST', 'PUT'])
 def update_song_properties(request):
-    if not checkApiToken(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
+    if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     song_id = str(request.query_params.get('song_id'))
     print(song_id)
     properties = dict(request.data['essentia_properties'])
     update_properties(song_id, properties)
     return Response('Properties are updated', status=status.HTTP_200_OK)
-
-    
-    
-"""@api_view(['GET', 'POST'])
-def song_list(request):
-    if request.method == 'GET':
-        data = Song.objects.all()
-
-        serializer = SongSerializer(data, context={'request': request}, many=True)
-
-        return Response(serializer.data)
-    
-    elif request.method == 'POST':
-        serializer = SongSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['PUT', 'DELETE'])
-def song_detail(request, pk):
-    try:
-        song = Song.objects.get(pk=pk)
-    except Song.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'PUT':
-        serializer = SongSerializer(song, data=request.data,context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        song.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-@api_view(['GET', 'POST'])
-def mood_list(request):
-    if request.method == 'GET':
-        
-        return Response("Not yet implemented")
-    
-    elif request.method == 'POST':
-        
-        return Response("Not yet implemented")"""

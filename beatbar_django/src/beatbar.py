@@ -9,10 +9,11 @@ def handle_uploaded_file(f):
             destination.write(chunk)
 
 def create_new_playlist(mood):
-    return
+    return 1
 
 def change_users_mood(user, mood):
-    return 1
+    new_playlist = create_new_playlist(mood)
+    return new_playlist
 
 def add_song_to_database(song_data):
     print(song_data['essentia_properties'])
