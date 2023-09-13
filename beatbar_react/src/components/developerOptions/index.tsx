@@ -1,6 +1,6 @@
 import "./style.css";
 import closeIcon from "../../assets/icons/close.svg"
-import { ALL_SONGS } from "../../types";
+import { ALL_SONGS } from "../../commons/commons";
 
 export default function DeveloperOptions(props: any) {
   return (
@@ -11,18 +11,7 @@ export default function DeveloperOptions(props: any) {
       </div>
       <fieldset>
         <p>Select a song, init the player and click play</p>
-        <select
-          //@ts-ignore
-          onChange={(e) => props.setCurrentSong(e.nativeEvent.target?.value)}
-        >
-          {ALL_SONGS.map((song) => {
-            return (
-              <option key={song.url} value={JSON.stringify(song)}>
-                {song.title} - {song.artist}
-              </option>
-            );
-          })}
-        </select>
+
         <button
           id="initialize-button"
           disabled={!props.currentSong}

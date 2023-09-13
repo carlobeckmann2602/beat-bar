@@ -1,9 +1,14 @@
 import styles from './styles.module.css'
 import {useState} from "react";
-import {MOODS} from "../../types";
+import {MOODS} from "../../commons/types";
 
-export default function MoodSelector(){
-  const [selectedMood, setSelectedMood] = useState<MOODS>(MOODS.focused)
+type MoodSelectorProps = {
+  setSelectedMood: Function
+  selectedMood: MOODS
+}
+
+export default function MoodSelector(props: MoodSelectorProps){
+  const [selectedMood, setSelectedMood] = useState<MOODS>(props.selectedMood)
   const [selectionExpanded, setSelectionExpanded]=useState(false)
 
   return (
@@ -19,6 +24,7 @@ export default function MoodSelector(){
                 className={selectedMood===MOODS.sad?styles.moodSelectorOptionSelected:styles.moodSelectorOptionUnselected}
                 onClick={()=>{
                   setSelectedMood(MOODS.sad)
+                  props.setSelectedMood(MOODS.sad)
                   setSelectionExpanded(false)
                 }
               }>
@@ -28,6 +34,7 @@ export default function MoodSelector(){
                 className={selectedMood===MOODS.chill?styles.moodSelectorOptionSelected:styles.moodSelectorOptionUnselected}
                 onClick={()=>{
                   setSelectedMood(MOODS.chill)
+                  props.setSelectedMood(MOODS.chill)
                   setSelectionExpanded(false)
                 }
               }>
@@ -37,6 +44,7 @@ export default function MoodSelector(){
                 className={selectedMood===MOODS.focused?styles.moodSelectorOptionSelected:styles.moodSelectorOptionUnselected}
                 onClick={()=>{
                   setSelectedMood(MOODS.focused)
+                  props.setSelectedMood(MOODS.focused)
                   setSelectionExpanded(false)
                 }
               }>
@@ -46,6 +54,7 @@ export default function MoodSelector(){
                 className={selectedMood===MOODS.happy?styles.moodSelectorOptionSelected:styles.moodSelectorOptionUnselected}
                 onClick={()=>{
                   setSelectedMood(MOODS.happy)
+                  props.setSelectedMood(MOODS.happy)
                   setSelectionExpanded(false)
                 }
               }>

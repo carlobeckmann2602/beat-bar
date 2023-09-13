@@ -1,13 +1,5 @@
-export type Song = {
-  title: string;
-  artist: string;
-  url: string;
-  length?: string;
-};
+export const apiBaseUrl = process.env.REACT_APP_DEV_API_BASE_URL??'http://localhost:8000/api/'
 
-export type AllSongsUrls = {
-  [key: string]: string;
-};
 export const ALL_SONGS = [
   {
     title: "Bathroom - Chill Background Music",
@@ -95,25 +87,3 @@ export const ALL_SONGS = [
     url: "http://localhost:3001/watr-fluid_itswatr.mp3"
   },
 ];
-
-export enum MOODS {
-  sad = "sad",
-  chill = "chill",
-  focused = "focused",
-  happy = "happy"
-}
-
-export enum BeatbarPlayerErrorNames {
-  INTERNAL_SERVER_ERROR = 'Internal Server Error',
-  RESOURCE_NOT_FOUND = 'Resource not found',
-  AUTHENTICATION_ERROR = 'Authentication Error',
-  AUTHORIZATION_ERROR = 'Authorization Error',
-  UNKNOWN_ERROR = 'Unknown Error'
-}
-
-export type BeatbarPlayerError = {
-  code: number,
-  name: BeatbarPlayerErrorNames,
-  description: string,
-  isFatal: boolean
-}

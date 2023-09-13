@@ -58,13 +58,34 @@ h6 {
   cursor: pointer;
 }
 
+.timestamps{
+  display: flex;
+  gap: 20px;
+}
+
+.timestamps > p{
+  color: var(--bb-light-grey-color);
+  text-shadow: var(--bb-violet-shadow);
+}
+
 .control-buttons {
   cursor: pointer;
   display: flex;
   align-items: center;
 }
 
-.control-buttons > img {
+.control-buttons > button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.control-buttons > button:active > img {
+  filter: invert(.75) drop-shadow(var(--bb-violet-shadow));
+
+}
+
+.control-buttons > button > img {
   filter: invert(1) drop-shadow(var(--bb-violet-shadow));
 }
 
