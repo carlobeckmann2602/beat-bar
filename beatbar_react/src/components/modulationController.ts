@@ -10,8 +10,9 @@ export function adjustPitchValue(_pitchValue: number, setPitchValue: Function, p
 
 export function adjustSpeedValue(_speedValue: number, setSpeedValue: Function, player: Tone.GrainPlayer | undefined) {
   console.log("_speedValue: ", _speedValue);
+  console.log("adjusted to: ", _speedValue / 100);
   if(player){
-    player.playbackRate = _speedValue
+    player.playbackRate = _speedValue / 100
   }
-  setSpeedValue(_speedValue);
+  setSpeedValue(_speedValue / 100);
 }

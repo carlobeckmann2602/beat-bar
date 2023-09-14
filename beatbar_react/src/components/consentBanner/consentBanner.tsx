@@ -1,6 +1,7 @@
 import styles from './styles.module.css'
 
 type ConsentBannerProps = {
+  handleSetConsentGiven: Function,
   setConsentGiven: Function
 }
 
@@ -24,7 +25,7 @@ export default function ConsentBanner(props: ConsentBannerProps){
         <p className={styles.consentBannerTitle}>
           Please accept that you read the paragraphs above by clicking the button below to continue to the beat.bar
         </p>
-        <button onClick={()=>props.setConsentGiven(true)} className={styles.consentBannerButton}>Accept</button>
+        <button onClick={()=>props.handleSetConsentGiven(props.setConsentGiven, true)} className={styles.consentBannerButton}>Accept</button>
       </div>
     </div>
   )

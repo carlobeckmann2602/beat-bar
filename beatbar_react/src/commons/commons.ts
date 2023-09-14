@@ -1,4 +1,4 @@
-export const apiBaseUrl = process.env.REACT_APP_DEV_API_BASE_URL??'http://localhost:8000/api/'
+export const apiBaseUrl = process.env.REACT_APP_DEV_API_BASE_URL ?? 'http://localhost:8000/api/'
 
 export const ALL_SONGS = [
   {
@@ -87,3 +87,19 @@ export const ALL_SONGS = [
     url: "http://localhost:3001/watr-fluid_itswatr.mp3"
   },
 ];
+
+export const HALFTONESTEPS = [
+  [0, 1, 2, 3, 4, 5, 6, -5, -4, -3, -2, -1, 0], //from c to c, from c to cis, from c to d, ...
+  [-1, 0, 1, 2, 3, 4, 5, 6, -5, -4, -3, -2, -1], //from cis to c, from cis to cis, from cis to d, ...,
+  [-2, -1, 0, 1, 2, 3, 4, 5, 6, -5, -4, -3, -2],
+  [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, -5, -4, -3],
+  [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, -5, -4],
+  [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, -5],
+  [6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6],
+  [5, 6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5],
+  [4, 5, 6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4],
+  [3, 4, 5, 6, -5, -4, -3, -2, -1, 0, 1, 2, 3],
+  [2, 3, 4, 5, 6, -5, -4, -3, -2, -1, 0, 1, 2],
+  [1, 2, 3, 4, 5, 5, -5, -4, -3, -2, -1, 0, 1],
+  [0, 1, 2, 3, 4, 5, 6, -5, -4, -3, -2, -1, 0],
+]

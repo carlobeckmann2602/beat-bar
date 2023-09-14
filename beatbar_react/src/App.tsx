@@ -2,8 +2,8 @@ import "./App.css";
 import DeveloperOptions from "./components/developerOptions";
 import React, {useEffect, useState} from "react";
 import * as Tone from "tone";
-import {AllSongsUrls, BeatbarPlayerError, MOODS, Song} from "./commons/types";
-import {ALL_SONGS} from "./commons/commons";
+import {AllSongsUrls, BeatbarPlayerError, HALFTONES_MAP, MOODS, Song} from "./commons/types";
+import {ALL_SONGS, HALFTONESTEPS} from "./commons/commons";
 import Background from "./components/background/background";
 import {setMood} from './components/backendController'
 
@@ -16,10 +16,11 @@ import ConsentBanner from "./components/consentBanner/consentBanner";
 import Cookies from 'universal-cookie';
 import VolumeControl from "./components/volumeControl/volumeControl";
 import {getSong} from "./components/playlistController";
-import {checkConsentCookie, checkStateCookie} from "./components/cookieController";
+import {checkConsentCookie, checkStateCookie, handleSetConsentGiven, handleSetSelectedMood} from "./components/cookieController";
 import {formatTimeStamp} from "./components/helper/format";
 import {GrainPlayer} from "tone";
 import {adjustPitchValue, adjustSpeedValue} from "./components/modulationController";
+import {wait} from "@testing-library/user-event/dist/utils";
 
 export default function App() {
   const [showDeveloperOptions, setShowDeveloperOptions] = useState(false);
@@ -204,9 +205,12 @@ export default function App() {
   const skipSong = () => {
     console.log("skip song")
     setTimerTime(0);
-
-    if(nextSong){
+    if(currentSong && nextSong){
+      adaptModulationForTransition(currentSong, nextSong)
+    }
+    setTimeout(()=>{if(currentSong && nextSong){
       console.log("currentSong will be", nextSong.song_id)
+
       setCurrentSong(nextSong)
 
       getSong(currentPlaylistId).then(song=>{
@@ -216,24 +220,25 @@ export default function App() {
           setNextSong(song)
         }
       })
+    }}, 500)
+
+  }
+
+  function adaptModulationForTransition(fromSong: Song, toSong: Song){
+    console.log("adaptModulationForTransition")
+    if(fromSong && toSong){
+      setSpeedValue(fromSong.bpm/toSong.bpm)
+      setPitchValue(getHalftoneSteps(fromSong.key, toSong.key) * 100)
+      setTimeout(()=>{
+        console.log("adjusting")
+        adjustSpeedValue(1, setSpeedValue, player)
+        adjustPitchValue(0, setPitchValue, player)
+      }, 20000)
     }
   }
 
-
-
-  function handleSetConsentGiven(mode: boolean){
-    setConsentGiven(mode)
-    const cookies = new Cookies();
-    cookies.set('beatbar-consentGiven', 'true', { path: '/', expires: new Date(Date.now() + 31556926000) });
-  }
-
-  function handleSetSelectedMood(_mood: MOODS){
-    const cookies = new Cookies();
-    cookies.set('beatbar-state', JSON.stringify({uuid: uuid, mood: _mood}), { path: '/', expires: new Date(Date.now() + 31556926000) });
-    if(uuid){
-      setMood(uuid, selectedMood, setCurrentPlaylistId)
-    }
-    setSelectedMood(_mood)
+  function getHalftoneSteps(fromTone: string, toTone: string): number{
+    return HALFTONESTEPS[HALFTONES_MAP[fromTone]][HALFTONES_MAP[toTone]]
   }
 
   return (
@@ -241,7 +246,8 @@ export default function App() {
       {
         !consentGiven?
           <ConsentBanner
-            setConsentGiven={handleSetConsentGiven}
+            handleSetConsentGiven={handleSetConsentGiven}
+            setConsentGiven={setConsentGiven}
           />:
           <></>
       }
@@ -250,8 +256,11 @@ export default function App() {
         <div className="top-line">
           <div>
             <MoodSelector
+              handleSetSelectedMood={handleSetSelectedMood}
               selectedMood={selectedMood}
-              setSelectedMood={handleSetSelectedMood}
+              uuid={uuid}
+              setCurrentPlaylist={setCurrentPlaylistId}
+              setSelectedMood={setSelectedMood}
             />
           </div>
           <h1>beat.bar</h1>
@@ -278,9 +287,35 @@ export default function App() {
         </div>
         <div>
           <label htmlFor={"speedControl"}>Speed</label>
-          <input type="number" id="speedControl" onChange={(e)=>adjustSpeedValue(parseInt(e.target.value), setSpeedValue, player)} value={speedValue}/>
+          <input type={"number"} value={speedValue} onChange={e=>setSpeedValue(parseInt(e.target.value))}/>
+          <input
+            type="range"
+            min={"1"}
+            max={"200"}
+            id="speedControl"
+            value={speedValue * 100}
+            onChange={(e)=>
+              adjustSpeedValue(parseInt(e.target.value), setSpeedValue, player)
+            } />
+          <p>Actual BPM: {currentSong?.bpm}</p>
+          <p>Computes BPM: {(currentSong?.bpm??1) * speedValue}</p>
           <label htmlFor={"pitchControl"}>Pitch</label>
           <input type="number" id="pitchControl" onChange={(e)=>adjustPitchValue(parseInt(e.target.value), setPitchValue, player)} value={pitchValue}/>
+          <div>
+            <p>Current</p>
+            <ul>
+              <li>Title: {currentSong?.title}</li>
+              <li>BPM: {currentSong?.bpm}</li>
+              <li>Key: {currentSong?.key}</li>
+              <li>Scale: {currentSong?.scale}</li>
+            </ul><p>Next</p>
+            <ul>
+              <li>Title: {nextSong?.title}</li>
+              <li>BPM: {nextSong?.bpm}</li>
+              <li>Key: {nextSong?.key}</li>
+              <li>Scale: {nextSong?.scale}</li>
+            </ul>
+          </div>
         </div>
         <div className="bottom-line">
           <div className="control-buttons">

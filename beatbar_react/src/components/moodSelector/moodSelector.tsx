@@ -3,8 +3,11 @@ import {useState} from "react";
 import {MOODS} from "../../commons/types";
 
 type MoodSelectorProps = {
+  handleSetSelectedMood: Function,
+  selectedMood: MOODS,
+  uuid?: string,
+  setCurrentPlaylist: Function,
   setSelectedMood: Function
-  selectedMood: MOODS
 }
 
 export default function MoodSelector(props: MoodSelectorProps){
@@ -24,7 +27,7 @@ export default function MoodSelector(props: MoodSelectorProps){
                 className={selectedMood===MOODS.sad?styles.moodSelectorOptionSelected:styles.moodSelectorOptionUnselected}
                 onClick={()=>{
                   setSelectedMood(MOODS.sad)
-                  props.setSelectedMood(MOODS.sad)
+                  props.handleSetSelectedMood(props.uuid, MOODS.sad, props.selectedMood, props.setCurrentPlaylist, props.setSelectedMood)
                   setSelectionExpanded(false)
                 }
               }>
@@ -34,7 +37,7 @@ export default function MoodSelector(props: MoodSelectorProps){
                 className={selectedMood===MOODS.chill?styles.moodSelectorOptionSelected:styles.moodSelectorOptionUnselected}
                 onClick={()=>{
                   setSelectedMood(MOODS.chill)
-                  props.setSelectedMood(MOODS.chill)
+                  props.handleSetSelectedMood(props.uuid, MOODS.chill, props.selectedMood, props.setCurrentPlaylist, props.setSelectedMood)
                   setSelectionExpanded(false)
                 }
               }>
@@ -44,7 +47,7 @@ export default function MoodSelector(props: MoodSelectorProps){
                 className={selectedMood===MOODS.focused?styles.moodSelectorOptionSelected:styles.moodSelectorOptionUnselected}
                 onClick={()=>{
                   setSelectedMood(MOODS.focused)
-                  props.setSelectedMood(MOODS.focused)
+                  props.handleSetSelectedMood(props.uuid, MOODS.focused, props.selectedMood, props.setCurrentPlaylist, props.setSelectedMood)
                   setSelectionExpanded(false)
                 }
               }>
@@ -54,7 +57,7 @@ export default function MoodSelector(props: MoodSelectorProps){
                 className={selectedMood===MOODS.happy?styles.moodSelectorOptionSelected:styles.moodSelectorOptionUnselected}
                 onClick={()=>{
                   setSelectedMood(MOODS.happy)
-                  props.setSelectedMood(MOODS.happy)
+                  props.handleSetSelectedMood(props.uuid, MOODS.happy, props.selectedMood, props.setCurrentPlaylist, props.setSelectedMood)
                   setSelectionExpanded(false)
                 }
               }>
