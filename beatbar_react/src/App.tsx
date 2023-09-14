@@ -18,12 +18,13 @@ import VolumeControl from "./components/volumeControl/volumeControl";
 import {getSong} from "./components/playlistController";
 import {checkConsentCookie, checkStateCookie} from "./components/cookieController";
 import {formatTimeStamp} from "./components/helper/format";
+import {GrainPlayer} from "tone";
+import {adjustPitchValue, adjustSpeedValue} from "./components/modulationController";
 
 export default function App() {
   const [showDeveloperOptions, setShowDeveloperOptions] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [player, setPlayer] = useState<Tone.Player>();
-  const [players, setPlayers] = useState<Tone.Players>(new Tone.Players());
+  const [player, setPlayer] = useState<Tone.GrainPlayer>();
   const [currentSong, setCurrentSong] = useState<Song>();
   const [nextSong, setNextSong] = useState<Song>();
   const [currentPlaylistId, setCurrentPlaylistId] = useState(1)
@@ -33,9 +34,10 @@ export default function App() {
   const [nodesInitialized, setNodesInitialized] = useState(false);
   const [volume, setVolume] = useState<number>(50);
   const [panorama, setPanorama] = useState<number>(0);
-  const [speedNode, setSpeedNode] = useState<number>(1);
+  const [speedValue, setSpeedValue] = useState<number>(1);
   const [pitchNode, setPitchNode] = useState<Tone.PitchShift>();
   const [pitchValue, setPitchValue] = useState<number>(0);
+  const [songIsPlaying, setSongIsPlaying] = useState(false)
 
   const [consentGiven, setConsentGiven] = useState<boolean>()
   const [uuid, setUuid] = useState<string>()
@@ -96,26 +98,20 @@ export default function App() {
   useEffect(() => {
     let intervalId: any;
     if(currentSong && nextSong){
-      if (isPlaying && timerTime <= currentSong?.duration) {
+      if (songIsPlaying && timerTime <= currentSong?.duration) {
         // setting time from 0 to 1 every 10 milliseconds using javascript setInterval method
         intervalId = setInterval(() => {
           setTimerTime(timerTime + 1)
-        }, 1000 / speedNode);
-      }
-      if (timerTime >= (currentSong.duration - crossFadeTime) && !crossFadeDone) {
-        //players.player(nextSong.song_id).start(Tone.now()).toDestination()
-        //players.player(nextSong.song_id).playbackRate = speedNode
-        //playNextSong(true)
-        //setCrossFadeDone(true)
+        }, 1000 / speedValue);
       }
       if (timerTime >= currentSong.duration){
-        //setIsPlaying(false)
+        setSongIsPlaying(false)
       }
     }
     return () => {
       clearInterval(intervalId)
     };
-  }, [isPlaying, timerTime]);
+  }, [isPlaying, songIsPlaying, timerTime]);
 
 
   /**
@@ -153,47 +149,46 @@ export default function App() {
     }
   }, [consentGiven, uuid, selectedMood])
 
-
   /**
-   * play a song once it is put into currentSong and isPlaying is set to true
+   * Set up the modification nodes
    */
   useEffect(()=>{
-    console.log("isPlaying: ", isPlaying)
+    setPitchNode(new Tone.PitchShift(pitchValue))
+  }, [consentGiven, uuid, selectedMood])
+
+  /**
+   * Put the new song into the player once it is set into currentSong
+   */
+  useEffect(()=>{
+    console.log("Put the new song into the player once it is set into currentSong")
     if(currentSong){
-      /*
-      if(isPlaying){
-        console.log("play ", currentSong.song_id)
-        if(!players.has(currentSong.song_id)) {
-          players.add(currentSong.song_id, currentSong.url,()=>{
-            // We need to call the play routine specifically here, because we need to wait for the newly created player to be loaded
-            players.player(currentSong.song_id).start(Tone.now()).toDestination()
-            players.player(currentSong.song_id).onstop = skipSong
-            players.player(currentSong.song_id).playbackRate = speedNode
-          })
-        } else {
-          players.player(currentSong.song_id).start(Tone.now()).toDestination()
-          players.player(currentSong.song_id).onstop = skipSong
-          players.player(currentSong.song_id).playbackRate = speedNode
-        }
-      } else {
-        if(!players.has(currentSong.song_id)){
-          players.add(currentSong.song_id, currentSong.url)
-        }
-        players.player(currentSong.song_id).onstop = ()=>{}
-        players.player(currentSong.song_id).stop()
-      }
-      */
-      const grainPlayer = new Tone.GrainPlayer(currentSong.url, ()=>{
-        if(isPlaying){
-          grainPlayer.start().toDestination()
-          grainPlayer.onstop = skipSong
-        } else {
-          grainPlayer.onstop = ()=>{}
-          grainPlayer.stop()
-        }
+      const _player = new Tone.GrainPlayer(currentSong.url, ()=>{
+        setPlayer(_player)
       })
     }
-  }, [isPlaying, currentSong])
+  }, [currentSong])
+
+  /**
+   * play the player once it is set
+   */
+  useEffect(()=>{
+    console.log("play the player once it is set")
+    if(player){
+      if(isPlaying){
+        setSongIsPlaying(true)
+        player.onstop = skipSong
+        player.playbackRate = speedValue
+        if(pitchNode){
+          player.connect(pitchNode)
+        }
+        player.start().toDestination()
+      } else {
+        setSongIsPlaying(false)
+        player.onstop = ()=>{}
+        player.stop()
+      }
+    }
+  }, [player, isPlaying])
 
   function play(startAt: number = 0) {
     console.log("play")
@@ -210,85 +205,21 @@ export default function App() {
     console.log("skip song")
     setTimerTime(0);
 
-    if(nextSong && players){
+    if(nextSong){
       console.log("currentSong will be", nextSong.song_id)
-      setCurrentSong({...nextSong})
+      setCurrentSong(nextSong)
 
       getSong(currentPlaylistId).then(song=>{
         // @ts-ignore
         console.log("nextSong will be", song.song_id)
         if(song){
-          if(!players.has(song.song_id)) {
-            players.add(song.song_id, song.url)
-          }
-          setNextSong({...song})
+          setNextSong(song)
         }
       })
     }
   }
 
 
-  /*
-  // set the pitch node
-  useEffect(() => {
-    if (pitchNode) {
-      pitchNode.pitch = pitch;
-    }
-  }, [pitch]);
-
-  // init the pitch node
-  useEffect(() => {
-    if (pitchNode && players) {
-      players.connect(pitchNode);
-      console.log("nodes connected");
-      setNodesInitialized(true);
-    }
-  }, [pitchNode, players]);
-
-  function initializePlayer() {
-    let allSongsUrls: AllSongsUrls = {};
-    ALL_SONGS.forEach((song) => {
-      //@ts-ignore
-      allSongsUrls[song.title] = song.url;
-    });
-
-    const _pitchNode = new Tone.PitchShift().toDestination();
-    if (_pitchNode) {
-      _pitchNode.pitch = pitch;
-      setPitchValue(_pitchNode);
-      console.log("pitch node set");
-    }
-  }
-  */
-
-
-  function adjustPitchValue(_pitchValue: number) {
-    console.log("_pitchValue: ", _pitchValue)
-    let _pitchNode = pitchNode
-    if(currentSong && _pitchNode){
-      players.player(currentSong.song_id).disconnect()
-      players.player(currentSong.song_id).connect(new Tone.PitchShift(_pitchValue)).toDestination()
-      _pitchNode.pitch = _pitchValue
-    }
-    setPitchNode(_pitchNode)
-    setPitchValue(_pitchValue);
-  }
-
-  function adjustVolume(_volume: number) {
-    setVolume(_volume);
-  }
-
-  function adjustPanorama(_pan: number) {
-    setPanorama(_pan);
-  }
-
-  function adjustSpeed(_speed: number) {
-    console.log("adjust speedNode");
-    if (players && currentSong) {
-      players.player(currentSong.title).playbackRate = _speed / 50;
-    }
-    setSpeedNode(_speed / 50);
-  }
 
   function handleSetConsentGiven(mode: boolean){
     setConsentGiven(mode)
@@ -346,7 +277,10 @@ export default function App() {
           </ul>
         </div>
         <div>
-          <input onChange={(e)=>adjustPitchValue(parseInt(e.target.value))} value={pitchValue}/>
+          <label htmlFor={"speedControl"}>Speed</label>
+          <input type="number" id="speedControl" onChange={(e)=>adjustSpeedValue(parseInt(e.target.value), setSpeedValue, player)} value={speedValue}/>
+          <label htmlFor={"pitchControl"}>Pitch</label>
+          <input type="number" id="pitchControl" onChange={(e)=>adjustPitchValue(parseInt(e.target.value), setPitchValue, player)} value={pitchValue}/>
         </div>
         <div className="bottom-line">
           <div className="control-buttons">
