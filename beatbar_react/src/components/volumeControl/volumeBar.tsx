@@ -35,7 +35,7 @@ export default function VolumeBar(props: VolumeBarProps){
 
   return(
     <div
-      className={`${styles.volumeSettings} ${props.showVolumeBar ? styles.hidden : ''}`}
+      className={`${styles.volumeSettings} ${!props.showVolumeBar ? styles.hidden : ''}`}
       onDragOver={(e)=>{e.preventDefault()}} >
       <img
         onClick={()=>{setLevel(0)}}
