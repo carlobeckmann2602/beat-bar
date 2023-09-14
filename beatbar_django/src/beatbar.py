@@ -55,6 +55,9 @@ def add_song_to_database(song_data):
 
 def update_properties(song_id, properties):
     song = Song.objects.get(song_id = song_id)
+
+    moods = [mood for mood in str(properties['moods']).split(',')]
+
     if EssentiaProperties.objects.filter(song = song):
         essentia_properties_filter = EssentiaProperties.objects.filter(song = song)
         essentia_properties_filter.update(key = properties['key'], 
@@ -64,7 +67,8 @@ def update_properties(song_id, properties):
                                           energy = properties['energy'], 
                                           danceability = properties['danceability'],
                                           cuepoint_in = properties['cuepoint_in'],
-                                          cuepoint_out = properties['cuepoint_out'])
+                                          cuepoint_out = properties['cuepoint_out'],
+                                          moods = moods)
     else:
         essentia_properties = EssentiaProperties(song = song,
                                                  key = properties['key'], 
@@ -74,5 +78,6 @@ def update_properties(song_id, properties):
                                                  energy = properties['energy'], 
                                                  danceability = properties['danceability'],
                                                  cuepoint_in = properties['cuepoint_in'],
-                                                 cuepoint_out = properties['cuepoint_out'])
+                                                 cuepoint_out = properties['cuepoint_out'],
+                                                 moods = moods)
         essentia_properties.save()

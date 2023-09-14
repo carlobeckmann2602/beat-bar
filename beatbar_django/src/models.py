@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 class Artist(models.Model):
     name = models.CharField(max_length=200)
@@ -36,6 +37,10 @@ class EssentiaProperties(models.Model):
     danceability = models.FloatField()
     cuepoint_in = models.FloatField()
     cuepoint_out = models.FloatField()
+    moods = ArrayField(
+            models.CharField(max_length=20, blank=True),
+            size=8,
+        )
 
     def __str__(self):
         return 'EssentiaProperties of ' + self.song.title
