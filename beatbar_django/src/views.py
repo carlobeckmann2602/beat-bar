@@ -1,8 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from rest_framework.decorators import parser_classes
-from rest_framework.parsers import JSONParser
 
 from django.shortcuts import render
 from .beatbar import *
@@ -111,6 +109,8 @@ def next_song(request):
         'bpm': next_song_properties.bpm,
         'energy': next_song_properties.energy,
         'danceability': next_song_properties.danceability,
+        'cuepoint_in': next_song_properties.cuepoint_in,
+        'cuepoint_out': next_song_properties.cuepoint_out,
     }
     return Response(response, status=status.HTTP_200_OK)
 
@@ -159,7 +159,6 @@ def add_song(request):
 def update_song_properties(request):
     if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
     song_id = str(request.query_params.get('song_id'))
-    print(song_id)
     properties = dict(request.data['essentia_properties'])
     update_properties(song_id, properties)
     return Response('Properties are updated', status=status.HTTP_200_OK)

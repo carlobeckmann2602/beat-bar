@@ -34,6 +34,8 @@ class EssentiaProperties(models.Model):
     bpm = models.FloatField()
     energy = models.FloatField()
     danceability = models.FloatField()
+    cuepoint_in = models.FloatField()
+    cuepoint_out = models.FloatField()
 
     def __str__(self):
         return 'EssentiaProperties of ' + self.song.title
