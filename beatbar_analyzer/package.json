@@ -1,0 +1,15 @@
+{
+  "name": "beatbar_analyzer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "3002",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "serve -p 3002 --cors"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
