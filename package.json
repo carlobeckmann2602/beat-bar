@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "serve": "^14.2.1",
     "universal-cookie": "^5.0.0"
   }
 }
