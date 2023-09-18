@@ -46,6 +46,8 @@ const essentia_properties = {
   energy: 200,
   danceability: 300,
   moods: "",
+  cuepoint_in: 0,
+  cuepoint_out: 0,
 };
 
 const httpRequest = new XMLHttpRequest();
@@ -155,6 +157,20 @@ if (!displayMoods) {
   );
 }
 
+const displayCuePointIn = document.getElementById("output-cue-in");
+if (!displayCuePointIn) {
+  console.error(
+    "the element with the id 'output-cue-in' could not be found in the dom"
+  );
+}
+
+const displayCuePointOut = document.getElementById("output-cue-out");
+if (!displayCuePointOut) {
+  console.error(
+    "the element with the id 'output-cue-out' could not be found in the dom"
+  );
+}
+
 const setInputButton = document.getElementById("set-input-button");
 if (setInputButton) {
   const inputUrl = document.getElementById("input-url");
@@ -232,6 +248,12 @@ async function analyze() {
 
   const computedEnergy = await essentia.Energy(inputSignalVector);
 
+  const computedCuePoints = await essentia.vectorToArray(await essentia.BeatTrackerDegara(inputSignalVector).ticks)
+
+  const computedCuePointIn = computedCuePoints[4]
+
+  const computedCuePointOut = computedCuePoints[computedCuePoints.length-16]
+
   displayKey.innerHTML = JSON.stringify(computedKeys.key);
   essentia_properties.key = computedKeys.key;
   displayScale.innerHTML = JSON.stringify(computedKeys.scale);
@@ -250,6 +272,12 @@ async function analyze() {
     computedDanceability.danceability
   );
   essentia_properties.danceability = computedDanceability.danceability;
+
+  displayCuePointIn.innerHTML = computedCuePointIn ?? 'n.a.';
+  essentia_properties.cuepoint_in = computedCuePointIn ?? 0;
+
+  displayCuePointOut.innerHTML = computedCuePointOut ?? 'n.a.';
+  essentia_properties.cuepoint_out = computedCuePointOut ?? 0;
 
   displayPredictions.innerHTML = JSON.stringify(predictions);
   let moods = "";
@@ -332,8 +360,8 @@ function postResults() {
         bpm: essentia_properties.bpm,
         energy: essentia_properties.energy,
         danceability: essentia_properties.danceability,
-        cuepoint_in: 0,
-        cuepoint_out: 0,
+        cuepoint_in: essentia_properties.cuepoint_in,
+        cuepoint_out: essentia_properties.cuepoint_out,
         moods: essentia_properties.moods,
       },
     })
@@ -352,8 +380,8 @@ function postResults() {
           bpm: essentia_properties.bpm,
           danceability: essentia_properties.danceability,
           energy: essentia_properties.energy,
-          cuepoint_in: 0,
-          cuepoint_out: 0,
+          cuepoint_in: essentia_properties.cuepoint_in,
+          cuepoint_out: essentia_properties.cuepoint_out,
           moods: essentia_properties.moods,
         },
       })
