@@ -171,6 +171,7 @@ env.bak/
 venv.bak/
 beatbar_env/pyvenv.cfg
 beatbar_react/node_modules/
+beatbar_analyzer/node_modules/
 
 # Spyder project settings
 .spyderproject
