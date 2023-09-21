@@ -1,8 +1,5 @@
 from rest_framework import serializers
-from .models import Artist
-from .models import Album
-from .models import Song
-from .models import EssentiaProperties
+from .models import *
 
 class ArtistSerializer(serializers.ModelSerializer):
 
@@ -31,3 +28,11 @@ class EssentiaPropertiesSerializer(serializers.ModelSerializer):
     class Meta:
         model = EssentiaProperties
         fields = ['song', 'key', 'scale', 'key_scale_strength', 'bpm', 'energy', 'danceability', 'loudness', 'cuepoint_in', 'cuepoint_out', 'moods']
+
+class SimilaritySerializer(serializers.ModelSerializer):
+    song_1 = serializers.PrimaryKeyRelatedField(read_only=True)
+    song_2 = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Similarity
+        fields = ['similarity']

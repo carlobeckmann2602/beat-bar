@@ -28,7 +28,7 @@ class Song(models.Model):
         return self.title + ' by ' + self.artist.name
     
 class EssentiaProperties(models.Model):
-    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    song = models.OneToOneField(Song, on_delete=models.CASCADE)
     key = models.CharField(max_length=200)
     scale = models.CharField(max_length=200)
     key_scale_strength = models.FloatField()
@@ -74,3 +74,11 @@ class User(models.Model):
 
     def __str__(self):
         return 'User ' + str(self.id)
+    
+class Similarity(models.Model):
+    song_1 = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='song_1')
+    song_2 = models.ForeignKey(Song, on_delete=models.CASCADE, related_name='song_2')
+    similarity = models.FloatField()
+
+    def __str__(self):
+        return 'Similarity of ' + self.song_1.title + ' and ' + self.song_2.title

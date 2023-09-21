@@ -2,6 +2,11 @@ import os
 from django.conf import settings
 from .models import *
 
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
 def handle_uploaded_file(f):
     path = os.path.join(settings.BASE_DIR, "src/assets/songs/", os.path.basename(f.name))
     with open(path, "wb+") as destination:
@@ -9,6 +14,8 @@ def handle_uploaded_file(f):
             destination.write(chunk)
 
 def create_new_playlist(mood):
+    print('New Playlist Mood: ' + mood)
+
     return 1
 
 def change_users_mood(user, mood):
@@ -56,7 +63,7 @@ def add_song_to_database(song_data):
 def update_properties(song_id, properties):
     song = Song.objects.get(song_id = song_id)
 
-    moods = [mood for mood in str(properties['moods']).split(',')]
+    moods = [mood for mood in str(properties['moods']).split(', ')]
 
     if EssentiaProperties.objects.filter(song = song):
         essentia_properties_filter = EssentiaProperties.objects.filter(song = song)
@@ -83,3 +90,59 @@ def update_properties(song_id, properties):
                                                  cuepoint_out = properties['cuepoint_out'],
                                                  moods = moods)
         essentia_properties.save()
+
+    calculate_song_similarities(song)
+
+def calculate_song_similarities(song):
+    print('\n Calculate Similarities for Song: ' + song.title + '\n')
+
+    essentia_data = pd.DataFrame(list(EssentiaProperties.objects.all().values()))
+    essentia_data = essentia_data.drop('id', axis=1)
+    essentia_data = essentia_data.rename(columns={'song_id': 'id'})
+    song_data = pd.DataFrame(list(Song.objects.all().values()))
+    artist_data = pd.DataFrame(list(Artist.objects.all().values())).set_index('id').to_dict()['name']
+    album_data = pd.DataFrame(list(Album.objects.all().values())).drop(['year', 'artist_id'], axis=1).set_index('id').to_dict()['name']
+    data = pd.merge(song_data, essentia_data, on='id')
+    data = data.drop(['id', 'year'], axis=1)
+    data.replace({'artist_id': artist_data, 'album_id': album_data}, inplace=True)
+
+    data_without_song = data[data['song_id']!=song.song_id]
+    
+    song_vectorizer = TfidfVectorizer(ngram_range=(1, 2))
+    data['moods'] = data['moods'].apply(lambda x: ' '.join(x))
+    text_data = data[['title', 'artist_id', 'album_id', 'key', 'scale', 'moods']].agg(' '.join, axis=1)
+    tfidf_vectors = song_vectorizer.fit_transform(text_data)
+
+    for other_song_id in data_without_song.song_id:
+        if Similarity.objects.filter(song_1 = Song.objects.get(song_id = other_song_id), song_2 =  song):
+            calculate_similarity(other_song_id, song.song_id, tfidf_vectors, data)
+        else:
+            calculate_similarity(song.song_id, other_song_id, tfidf_vectors, data)
+
+# TODO fix text similarity!
+def calculate_similarity(song_id_1, song_id_2, tfidf_vectors, data):
+    text_array1 = tfidf_vectors[data.index[data['song_id'] == song_id_1].tolist()[0], :]
+    num_array1 = data[data['song_id']==song_id_1].select_dtypes(include=np.number).to_numpy()
+
+    text_array2 = tfidf_vectors[data.index[data['song_id'] == song_id_2], :]
+    num_array2 = data[data['song_id']==song_id_2].select_dtypes(include=np.number).to_numpy()
+
+    text_sim = cosine_similarity(text_array1, text_array2).flatten()[0]
+    num_sim = cosine_similarity(num_array1, num_array2)[0][0]
+    sim = num_sim + text_sim
+
+    print(f'Similarity between {song_id_1} and {song_id_2}: {str(sim)} (Text: {text_sim}, Numerisch: {num_sim})')
+
+    song_1 = Song.objects.get(song_id = song_id_1)
+    song_2 = Song.objects.get(song_id = song_id_2)
+
+    if Similarity.objects.filter(song_1 = song_1, song_2 = song_2):
+        similarity_filter = Similarity.objects.filter(song_1 = song_1, song_2 = song_2)
+        similarity_filter.update(song_1 = song_1, 
+                                song_2 = song_2, 
+                                similarity=sim)
+    else:
+        similarity = Similarity(song_1 = song_1, 
+                            song_2 = song_2, 
+                            similarity=sim)
+        similarity.save()
