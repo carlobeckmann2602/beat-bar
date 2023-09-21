@@ -18,9 +18,11 @@ import VolumeControl from "./components/volumeControl/volumeControl";
 import {getSong} from "./components/playlistController";
 import {checkConsentCookie, checkStateCookie, handleSetConsentGiven, handleSetSelectedMood} from "./components/cookieController";
 import {formatTimeStamp} from "./components/helper/format";
-import {GrainPlayer} from "tone";
+import {GrainPlayer, Param} from "tone";
 import {adjustPitchValue, adjustSpeedValue} from "./components/modulationController";
 import {wait} from "@testing-library/user-event/dist/utils";
+import {debugSong} from "./components/helper/debug";
+import {lerp} from "./components/helper/math";
 
 export default function App() {
   const [showDeveloperOptions, setShowDeveloperOptions] = useState(false);
@@ -49,7 +51,9 @@ export default function App() {
   const [timerTime, setTimerTime] = useState(0)
   const [timerRunning, setTimerRunning] = useState(false)
   const [crossFadeTime, setCrossFadeTime] = useState(15);
-  const [crossFadeDone, setCrossFadeDone] = useState(false)
+
+  const [isFading, setIsFading] = useState(false)
+  const [isFirstSong, setIsFirstSong] = useState(true)
 
   let bodyElement: HTMLElement | null;
 
@@ -104,6 +108,16 @@ export default function App() {
         intervalId = setInterval(() => {
           setTimerTime(timerTime + 1)
         }, 1000 / speedValue);
+      }
+      if (timerTime >= (currentSong.cuepoint_out)){
+        if(!isFading){
+          setIsFading(true)
+          console.log("timerTime: ", timerTime)
+          console.log("currentSong.duration: ", currentSong.duration)
+          console.log("currentSong.cuepoint_out: ", currentSong.cuepoint_out)
+          console.log("DO FADE")
+          skipSong()
+        }
       }
       if (timerTime >= currentSong.duration){
         setSongIsPlaying(false)
@@ -170,19 +184,42 @@ export default function App() {
   }, [currentSong])
 
   /**
-   * play the player once it is set
+   * play the player once it is set or play/pause has been triggered
    */
   useEffect(()=>{
     console.log("play the player once it is set")
     if(player){
       if(isPlaying){
         setSongIsPlaying(true)
-        player.onstop = skipSong
+        //player.onstop = skipSong
         player.playbackRate = speedValue
-        if(pitchNode){
-          player.connect(pitchNode)
+
+        player.volume.value = (-12)
+        let x = 0;
+
+        let int = setInterval(()=>{
+          let y = (Math.cos((x/100)*Math.PI)/2+.5)*-1
+          player.volume.value = 50 * y;
+          x+=1;
+          if(y >= 0){
+            player.volume.value = 0;
+            clearInterval(int)
+          }
+        }, 20)
+
+        if(isFirstSong){
+
+          player.start("0", "0").toDestination()
+
+          setIsFirstSong(false)
+        } else {
+          player.start("0", currentSong?.cuepoint_in??"0").toDestination()
         }
-        player.start().toDestination()
+
+        setTimeout(()=>{
+          console.log("readjustModulation now?")
+          readjustModulation()
+        }, 20000)
       } else {
         setSongIsPlaying(false)
         player.onstop = ()=>{}
@@ -208,32 +245,62 @@ export default function App() {
     if(currentSong && nextSong){
       adaptModulationForTransition(currentSong, nextSong)
     }
-    setTimeout(()=>{if(currentSong && nextSong){
-      console.log("currentSong will be", nextSong.song_id)
+    setTimeout(()=>{
+      if(currentSong && nextSong){
+        console.log("currentSong will be", nextSong.song_id)
 
-      setCurrentSong(nextSong)
+        setCurrentSong(nextSong)
 
-      getSong(currentPlaylistId).then(song=>{
-        // @ts-ignore
-        console.log("nextSong will be", song.song_id)
-        if(song){
-          setNextSong(song)
-        }
-      })
-    }}, 500)
+        getSong(currentPlaylistId).then(song=>{
+          // @ts-ignore
+          console.log("nextSong will be", song.song_id)
+          if(song){
+            setNextSong(song)
+          }
+        })
 
+        setIsFading(false)
+      }
+    }, 500)
   }
 
   function adaptModulationForTransition(fromSong: Song, toSong: Song){
     console.log("adaptModulationForTransition")
     if(fromSong && toSong){
       setSpeedValue(fromSong.bpm/toSong.bpm)
-      setPitchValue(getHalftoneSteps(fromSong.key, toSong.key) * 100)
-      setTimeout(()=>{
-        console.log("adjusting")
-        adjustSpeedValue(1, setSpeedValue, player)
-        adjustPitchValue(0, setPitchValue, player)
-      }, 20000)
+      // setPitchValue(getHalftoneSteps(fromSong.key, toSong.key) * 100)
+    }
+  }
+
+  function readjustModulation(){
+    if(player){
+      let x = 0;
+      let oldSpeed = speedValue;
+      let oldPitch = pitchValue
+
+      let int = setInterval(()=>{
+        let y = 1 - (Math.cos((x/100)*Math.PI)/2+.5) + 0.001
+        console.log(y)
+
+        // setPitchValue(lerp(1 - oldPitch, 0, y))
+        setSpeedValue(lerp(oldSpeed, 1, y))
+
+        // player.detune = lerp(1 - oldPitch, 0, y)
+        player.playbackRate =lerp(oldSpeed, 1, y)
+
+
+        if(y >= 1){
+          setSpeedValue(1)
+          // setPitchValue(0)
+
+          // player.detune = 0;
+          player.playbackRate = 1;
+
+          clearInterval(int)
+        }
+
+      }, 100)
+      x+=1;
     }
   }
 
@@ -286,35 +353,14 @@ export default function App() {
           </ul>
         </div>
         <div>
-          <label htmlFor={"speedControl"}>Speed</label>
-          <input type={"number"} value={speedValue} onChange={e=>setSpeedValue(parseInt(e.target.value))}/>
-          <input
-            type="range"
-            min={"1"}
-            max={"200"}
-            id="speedControl"
-            value={speedValue * 100}
-            onChange={(e)=>
-              adjustSpeedValue(parseInt(e.target.value), setSpeedValue, player)
-            } />
-          <p>Actual BPM: {currentSong?.bpm}</p>
-          <p>Computes BPM: {(currentSong?.bpm??1) * speedValue}</p>
-          <label htmlFor={"pitchControl"}>Pitch</label>
-          <input type="number" id="pitchControl" onChange={(e)=>adjustPitchValue(parseInt(e.target.value), setPitchValue, player)} value={pitchValue}/>
+
+          <p>current BPM: {speedValue}</p>
+          <p>current  Pitch: {pitchValue}</p>
           <div>
             <p>Current</p>
-            <ul>
-              <li>Title: {currentSong?.title}</li>
-              <li>BPM: {currentSong?.bpm}</li>
-              <li>Key: {currentSong?.key}</li>
-              <li>Scale: {currentSong?.scale}</li>
-            </ul><p>Next</p>
-            <ul>
-              <li>Title: {nextSong?.title}</li>
-              <li>BPM: {nextSong?.bpm}</li>
-              <li>Key: {nextSong?.key}</li>
-              <li>Scale: {nextSong?.scale}</li>
-            </ul>
+            {currentSong?debugSong(currentSong):''}
+            <p>Next</p>
+            {nextSong?debugSong(nextSong):''}
           </div>
         </div>
         <div className="bottom-line">
@@ -331,8 +377,7 @@ export default function App() {
             <button><img src={previousIcon} alt={"previous icon to jump to the previous song"} /></button>
             <button
               onClick={()=>{
-                pause();
-                skipSong()
+                readjustModulation()
               }}
             ><img src={skipIcon} alt={"skip icon to jump to the next song"} /></button>
             <VolumeControl />
@@ -389,4 +434,24 @@ export default function App() {
             error={error}
             setError={setError}
           />
+
+
+
+          <label htmlFor={"speedControl"}>Speed</label>
+          <input type={"number"} value={speedValue} onChange={e=>setSpeedValue(parseInt(e.target.value))}/>
+          <input
+            type="range"
+            min={"1"}
+            max={"200"}
+            id="speedControl"
+            value={speedValue * 100}
+            onChange={(e)=>
+              adjustSpeedValue(parseInt(e.target.value), setSpeedValue, player)
+            } />
+
+
+<label htmlFor={"pitchControl"}>Pitch</label>
+          <input type="number" id="pitchControl" onChange={(e)=>adjustPitchValue(parseInt(e.target.value), setPitchValue, player)} value={pitchValue}/>
+
+
  */

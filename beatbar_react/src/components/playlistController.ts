@@ -17,13 +17,15 @@ export async function getSong(playlistId: number){
         artist: res.data.song_id.split('_')[1],
         url: (process.env.REACT_APP_DEV_CDN_BASE_URL??'http://localhost:3001/')+res.data.song_id,
         song_id: res.data.song_id,
-        duration: res.data.duration,
+        duration: res.data.duration * (44100 / 48000), // We need to modify this values due to samplingrate mismatches in essentia
         key: res.data.key,
         scale: res.data.scale,
         key_scale_strength: res.data.key_scale_strength,
-        bpm: res.data.bpm,
+        bpm: res.data.bpm * (44100 / 48000), // We need to modify this values due to samplingrate mismatches in essentia
         energy: res.data.energy,
-        danceability: res.data.danceability
+        danceability: res.data.danceability,
+        cuepoint_in: res.data.cuepoint_in  * (44100 / 48000), // We need to modify this values due to samplingrate mismatches in essentia
+        cuepoint_out: res.data.cuepoint_out  * (44100 / 48000) // We need to modify this values due to samplingrate mismatches in essentia
       })
     }
   })

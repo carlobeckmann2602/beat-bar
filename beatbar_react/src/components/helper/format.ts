@@ -9,7 +9,7 @@ export function formatTimeStamp(time: number | undefined): string {
       minutes = "0"+minutesAsNum.toString()
     }
 
-    const secondsAsNum = time%60
+    const secondsAsNum = Math.round(time%60)
     if(secondsAsNum>=10){
       seconds = secondsAsNum.toString()
     } else {

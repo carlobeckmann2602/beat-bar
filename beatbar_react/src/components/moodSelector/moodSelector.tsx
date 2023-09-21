@@ -64,7 +64,7 @@ export default function MoodSelector(props: MoodSelectorProps){
                 {MOODS.happy}
               </li>
             </ul>:
-            <div onClick={()=>{setSelectionExpanded(true)}} className={styles.moodSelectorSelected}>{selectedMood}</div>
+            <div onClick={()=>{setSelectionExpanded(true)}} className={styles.moodSelectorSelected}>{props.selectedMood}</div>
         }
       </div>
     </div>

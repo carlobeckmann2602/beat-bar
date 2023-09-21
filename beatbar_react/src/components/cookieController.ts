@@ -21,7 +21,7 @@ export function checkStateCookie(setUuid: Function, selectedMood: MOODS, setSele
   const cookies = new Cookies()
   let stateCookie = cookies.get('beatbar-state')
 
-  if(stateCookie && stateCookie['uuid']){
+  if(stateCookie && stateCookie['uuid'] && stateCookie['mood']){
     setUuid(stateCookie.uuid)
     setSelectedMood(stateCookie.mood)
   } else {

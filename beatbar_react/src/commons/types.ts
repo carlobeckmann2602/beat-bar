@@ -10,6 +10,8 @@ export type Song = {
   bpm: number;
   energy: number;
   danceability: number;
+  cuepoint_in: number;
+  cuepoint_out: number;
 };
 
 export type SongResponse = {
@@ -20,7 +22,9 @@ export type SongResponse = {
   "key_scale_strength": number,
   "bpm": number,
   "energy": number,
-  "danceability": number
+  "danceability": number,
+  "cuepoint_in": number,
+  "cuepoint_out": number
 }
 
 export type AllSongsUrls = {
