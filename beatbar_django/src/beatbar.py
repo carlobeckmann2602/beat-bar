@@ -66,6 +66,7 @@ def update_properties(song_id, properties):
                                           bpm = properties['bpm'], 
                                           energy = properties['energy'], 
                                           danceability = properties['danceability'],
+                                          loudness = properties['loudness'],
                                           cuepoint_in = properties['cuepoint_in'],
                                           cuepoint_out = properties['cuepoint_out'],
                                           moods = moods)
@@ -77,6 +78,7 @@ def update_properties(song_id, properties):
                                                  bpm = properties['bpm'], 
                                                  energy = properties['energy'], 
                                                  danceability = properties['danceability'],
+                                                 loudness = properties['loudness'],
                                                  cuepoint_in = properties['cuepoint_in'],
                                                  cuepoint_out = properties['cuepoint_out'],
                                                  moods = moods)

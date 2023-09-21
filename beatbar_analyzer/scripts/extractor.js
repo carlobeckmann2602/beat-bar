@@ -45,6 +45,7 @@ const essentia_properties = {
   bpm: 100,
   energy: 200,
   danceability: 300,
+  loudness: 0,
   moods: "",
   cuepoint_in: 0,
   cuepoint_out: 0,
@@ -140,6 +141,13 @@ const displayDanceability = document.getElementById("output-danceability");
 if (!displayDanceability) {
   console.error(
     "the element with the id 'output-danceability' could not be found in the dom"
+  );
+}
+
+const displayLoudness = document.getElementById("output-loudness");
+if (!displayLoudness) {
+  console.error(
+    "the element with the id 'output-loudness' could not be found in the dom"
   );
 }
 
@@ -248,11 +256,18 @@ async function analyze() {
 
   const computedEnergy = await essentia.Energy(inputSignalVector);
 
-  const computedCuePoints = await essentia.vectorToArray(await essentia.BeatTrackerDegara(inputSignalVector).ticks)
+  const computedLoudness = await essentia.Loudness(inputSignalVector);
 
-  const computedCuePointIn = computedCuePoints[4]
+  const computedCuePoints = await essentia.vectorToArray(
+    await essentia.BeatTrackerDegara(inputSignalVector).ticks
+  );
 
-  const computedCuePointOut = computedCuePoints[computedCuePoints.length-16]
+  const computedCuePointIn = computedCuePoints[4];
+
+  const computedCuePointOut = computedCuePoints[computedCuePoints.length - 16];
+
+  //mood extraction
+  const predictions = await predict_mood(audioBuffer);
 
   displayKey.innerHTML = JSON.stringify(computedKeys.key);
   essentia_properties.key = computedKeys.key;
@@ -272,11 +287,13 @@ async function analyze() {
     computedDanceability.danceability
   );
   essentia_properties.danceability = computedDanceability.danceability;
+  displayLoudness.innerHTML = JSON.stringify(computedLoudness.loudness);
+  essentia_properties.loudness = computedLoudness.loudness;
 
-  displayCuePointIn.innerHTML = computedCuePointIn ?? 'n.a.';
+  displayCuePointIn.innerHTML = computedCuePointIn ?? "n.a.";
   essentia_properties.cuepoint_in = computedCuePointIn ?? 0;
 
-  displayCuePointOut.innerHTML = computedCuePointOut ?? 'n.a.';
+  displayCuePointOut.innerHTML = computedCuePointOut ?? "n.a.";
   essentia_properties.cuepoint_out = computedCuePointOut ?? 0;
 
   displayPredictions.innerHTML = JSON.stringify(predictions);
@@ -360,6 +377,7 @@ function postResults() {
         bpm: essentia_properties.bpm,
         energy: essentia_properties.energy,
         danceability: essentia_properties.danceability,
+        loudness: essentia_properties.loudness,
         cuepoint_in: essentia_properties.cuepoint_in,
         cuepoint_out: essentia_properties.cuepoint_out,
         moods: essentia_properties.moods,
@@ -379,6 +397,7 @@ function postResults() {
           key_scale_strength: essentia_properties.key_scale_strength,
           bpm: essentia_properties.bpm,
           danceability: essentia_properties.danceability,
+          loudness: essentia_properties.loudness,
           energy: essentia_properties.energy,
           cuepoint_in: essentia_properties.cuepoint_in,
           cuepoint_out: essentia_properties.cuepoint_out,
