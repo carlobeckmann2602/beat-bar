@@ -78,7 +78,7 @@ if (apiTokenTextarea) {
   });
 }
 
-const progessSpinner = document.getElementById("progress-spinner");
+const progessSpinner = document.getElementById("loading-spinner-wrapper-id");
 
 const continueButton = document.getElementById("continue-button");
 if (continueButton) {
@@ -221,7 +221,7 @@ EssentiaWASM().then((EssentiaWasm) => {
 function continueHandler() {
   console.log("Starting");
   if (progessSpinner) {
-    progessSpinner.classList.remove("hidden");
+    progessSpinner.classList.remove("non-displayed");
   }
   audioCtx.resume().then(async (res) => {
     console.log("Audio Context has been resumed! ", res);
@@ -308,7 +308,7 @@ async function analyze() {
   essentia_properties.moods = moods;
 
   if (progessSpinner) {
-    progessSpinner.classList.add("hidden");
+    progessSpinner.classList.add("non-displayed");
   }
 }
 
