@@ -16,11 +16,55 @@ def handle_uploaded_file(f):
 def create_new_playlist(mood):
     print('New Playlist Mood: ' + mood)
 
-    return 1
+    songs_list = []
+    for property in EssentiaProperties.objects.filter(moods__contains = [mood]):
+        songs_list.append(property.song.id)
+
+    songs = pd.DataFrame({'song_id': songs_list})
+    
+    start_song_id = songs.sample().song_id.iloc[0]
+    prev_song_id = start_song_id
+    songs = songs[songs.song_id != prev_song_id]
+    
+    playlist_songs = [Song.objects.get(id = prev_song_id)]
+    while not songs.empty:
+        next_song_id = get_song_with_best_similarity(prev_song_id, songs)
+        playlist_songs.append(Song.objects.get(id = next_song_id))
+        songs = songs[songs.song_id != next_song_id]
+        prev_song_id = next_song_id
+
+    playlist = Playlist(next_song_id = Song.objects.get(id = start_song_id).song_id, order = [song.id for song in playlist_songs])
+    playlist.save()
+    for song in playlist_songs:
+        playlist.songs.aadd(song)
+        playlist.save()
+
+    return playlist
+
+def get_song_with_best_similarity(song_id, songs):
+    song = Song.objects.get(id = song_id)
+
+    similarities1 = pd.DataFrame(list(Similarity.objects.filter(song_1 = song).values()))
+    similarities2 = pd.DataFrame(list(Similarity.objects.filter(song_2 = song).values())).rename(columns={'song_1_id': 'song_2_id', 'song_2_id': 'song_1_id'})
+    similarities = pd.concat([similarities1, similarities2], ignore_index=True).drop('song_1_id', axis=1).rename(columns={'song_2_id': 'song_id'})
+    
+    mask = [id in songs['song_id'].values for id in similarities['song_id']]
+    similarities = similarities[mask]
+
+    similarities.sort_values(by='similarity', ascending = False, inplace=True)
+
+    return similarities.song_id.iloc[0]
 
 def change_users_mood(user, mood):
     new_playlist = create_new_playlist(mood)
-    return new_playlist
+
+    if user.playlist is not None:
+        Playlist.objects.filter(id = user.playlist.id).delete()
+    
+    user.playlist = new_playlist
+    user.save()
+
+    return new_playlist.id
 
 def add_song_to_database(song_data):
     if Artist.objects.filter(name = song_data['artist_name']):
@@ -119,7 +163,6 @@ def calculate_song_similarities(song):
         else:
             calculate_similarity(song.song_id, other_song_id, tfidf_vectors, data)
 
-# TODO fix text similarity!
 def calculate_similarity(song_id_1, song_id_2, tfidf_vectors, data):
     text_array1 = tfidf_vectors[data.index[data['song_id'] == song_id_1].tolist()[0], :]
     num_array1 = data[data['song_id']==song_id_1].select_dtypes(include=np.number).to_numpy()

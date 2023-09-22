@@ -47,18 +47,14 @@ class EssentiaProperties(models.Model):
         return 'EssentiaProperties of ' + self.song.title
     
 class Playlist(models.Model):
-    id = models.IntegerField(primary_key=True)
     next_song_id = models.CharField(max_length=200)
     songs = models.ManyToManyField(Song)
+    order = ArrayField(
+            models.IntegerField()
+        )
 
     def update_next_song(self, previous_song):
-        playlist_songs = self.songs.all()
-        song = playlist_songs[0]
-        idx = 0
-        while(song.id != previous_song.id):
-            idx = (idx + 1) % len(playlist_songs)
-            song = playlist_songs[idx]
-        self.next_song_id = playlist_songs[(idx + 1) % len(playlist_songs)].song_id
+        self.next_song_id = Song.objects.get(id = self.order[(self.order.index(previous_song.id) + 1) % len(self.order)]).song_id
         self.save()
 
 
@@ -70,7 +66,7 @@ class User(models.Model):
          primary_key = True,
          default = uuid.uuid4,
          editable = False)
-    playlist = models.ForeignKey(Playlist, on_delete=models.SET_NULL, null=True)
+    playlist = models.OneToOneField(Playlist, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return 'User ' + str(self.id)
