@@ -8,12 +8,12 @@ import Background from "./components/background/background";
 import playIcon from '../src/assets/icons/play.svg'
 import pauseIcon from '../src/assets/icons/pause.svg'
 import skipIcon from '../src/assets/icons/skip.svg'
-import previousIcon from '../src/assets/icons/previous.svg'
+import stopIcon from '../src/assets/icons/stop.svg'
 import MoodSelector from "./components/moodSelector/moodSelector";
 import ConsentBanner from "./components/consentBanner/consentBanner";
 import VolumeControl from "./components/volumeControl/volumeControl";
 import {getSong} from "./components/playlistController";
-import {checkConsentCookie, checkStateCookie, handleSetConsentGiven, handleSetSelectedMood} from "./components/cookieController";
+import {checkConsentCookie, checkStateCookie, handleSetConsentGiven} from "./components/cookieController";
 import {formatTimeStamp} from "./components/helper/format";
 import {debugSong} from "./components/helper/debug";
 import {lerp} from "./components/helper/math";
@@ -30,6 +30,7 @@ export default function App() {
 
   const [selectedMood, setSelectedMood] = useState<MOODS>(MOODS.party)
 
+  const [volume, setVolume] = useState(7/7)
   const [speedValue, setSpeedValue] = useState<number>(1);
   const [pitchNode, setPitchNode] = useState<Tone.PitchShift>();
   const [pitchValue, setPitchValue] = useState<number>(0);
@@ -48,6 +49,7 @@ export default function App() {
 
   let bodyElement: HTMLElement | null;
 
+
   /**
    * Keyboard Handler
    * @param event
@@ -61,24 +63,25 @@ export default function App() {
         play()
     }
     if (event.code === 'KeyS'){
-      console.log("sad mood")
+      updateMood(MOODS.sad)
     }
-    if (event.code === 'KeyC'){
-      console.log("chill mood")
+    if (event.code === 'KeyR'){
+      updateMood(MOODS.relaxed)
     }
-    if (event.code === 'KeyF'){
-      console.log("focused mood")
+    if (event.code === 'KeyA'){
+      updateMood(MOODS.aggressive)
     }
     if (event.code === 'KeyH'){
-      console.log("happy mood")
+      updateMood(MOODS.happy)
     }
-    if (event.code === 'ArrowLeft'){
-      console.log("previous mood")
-    }
-    if (event.code === 'ArrowRight'){
-      console.log("next mood")
+    if (event.code === 'KeyP'){
+      updateMood(MOODS.party)
     }
   }
+
+  useEffect(()=>{
+    console.log("volume: ", volume)
+  }, [volume])
 
   function attachKeyboardHandler(){
     bodyElement = document.getElementById('body-id')
@@ -194,7 +197,7 @@ export default function App() {
 
         let int = setInterval(()=>{
           let y = (Math.cos((x/100)*Math.PI)/2+.5)*-1
-          player.volume.value = 50 * y;
+          player.volume.value = 50 * volume * y;
           x+=1;
           if(y >= 0){
             player.volume.value = 0;
@@ -229,6 +232,13 @@ export default function App() {
       }
     }
   }, [player, isPlaying])
+
+  useEffect(()=>{
+    if(player){
+      player.volume.value = -50 * (1 - volume)
+      console.log(player.volume.value)
+    }
+  }, [volume])
 
   function play(startAt: number = 0) {
     console.log("play")
@@ -309,9 +319,10 @@ export default function App() {
     return HALFTONESTEPS[HALFTONES_MAP[fromTone]][HALFTONES_MAP[toTone]]
   }
 
-  function updateMood(mood: MOODS){
+  function updateMood(_mood: MOODS){
     if(uuid){
-      setMood(uuid, mood, setCurrentPlaylistId, setPlaylistLoading)
+      setMood(uuid, _mood, setCurrentPlaylistId, setPlaylistLoading)
+      console.log("updating mood to", _mood)
       if(player){
         setIsPlaying(false)
       }
@@ -352,9 +363,6 @@ export default function App() {
               <span className="control-option-label">spacebar</span> play/pause
             </li>
             <li>
-              <span className="control-option-label">arrows</span> change mood
-            </li>
-            <li>
               <span className="control-option-label">s</span> sad mood
             </li>
             <li>
@@ -393,7 +401,11 @@ export default function App() {
             >
               <img src={isPlaying?pauseIcon:playIcon} alt={"play pause icon to play or pause the current song"} />
             </button>
-            <button><img src={previousIcon} alt={"previous icon to jump to the previous song"} /></button>
+            <button onClick={()=>{
+              setSongPausedAt(0)
+              setIsPlaying(false)
+              setTimerTime(0)
+            }}><img src={stopIcon} alt={"icon to stop the current song and go to its start"} /></button>
             <button
               onClick={()=>{
                 if(player){
@@ -402,10 +414,11 @@ export default function App() {
                   setIsFading(true)
                   skipSong(true)
                 }
-
               }}
             ><img src={skipIcon} alt={"skip icon to jump to the next song"} /></button>
-            <VolumeControl />
+            <VolumeControl
+              setVolume={setVolume}
+            />
           </div>
           <div className="timestamps">
             <p>{}</p>

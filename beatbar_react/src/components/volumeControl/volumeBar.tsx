@@ -1,14 +1,19 @@
 import styles from './volumeControl.module.css'
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import volumeOffIcon from '../../assets/icons/volume-off.svg'
 
 type VolumeBarProps = {
+  setVolume: Function,
   showVolumeBar: boolean
 }
 
 export default function VolumeBar(props: VolumeBarProps){
-  const [level, setLevel] = useState(4)
+  const [level, setLevel] = useState(7)
   const maxLevel = 7;
+
+  useEffect(()=>{
+    props.setVolume((level)/7)
+  }, [level])
 
   function levelBars(){
     let bar = []
