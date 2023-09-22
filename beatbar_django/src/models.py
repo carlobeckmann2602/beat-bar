@@ -25,7 +25,7 @@ class Song(models.Model):
     duration = models.FloatField()
 
     def __str__(self):
-        return self.title + ' by ' + self.artist.name
+        return self.title + (' by ' + self.artist.name) if self.artist is not None else ''
     
 class EssentiaProperties(models.Model):
     song = models.OneToOneField(Song, on_delete=models.CASCADE)
