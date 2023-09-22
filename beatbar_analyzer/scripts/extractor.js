@@ -262,9 +262,9 @@ async function analyze() {
     await essentia.BeatTrackerDegara(inputSignalVector).ticks
   );
 
-  const computedCuePointIn = computedCuePoints[4];
+  const computedCuePointIn = computedCuePoints[16];
 
-  const computedCuePointOut = computedCuePoints[computedCuePoints.length - 16];
+  const computedCuePointOut = computedCuePoints[computedCuePoints.length - 32];
 
   //mood extraction
   const predictions = await predict_mood(audioBuffer);

@@ -32,10 +32,11 @@ export type AllSongsUrls = {
 };
 
 export enum MOODS {
+  happy = "happy",
   sad = "sad",
-  chill = "chill",
-  focused = "focused",
-  happy = "happy"
+  relaxed = "relaxed",
+  aggressive = "aggressive",
+  party = "party"
 }
 
 export const HALFTONES_MAP: {[key: string]: number} = {

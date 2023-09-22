@@ -17,7 +17,7 @@ export async function getSong(playlistId: number){
         artist: res.data.song_id.split('_')[1],
         url: (process.env.REACT_APP_DEV_CDN_BASE_URL??'http://localhost:3001/')+res.data.song_id,
         song_id: res.data.song_id,
-        duration: res.data.duration * (44100 / 48000), // We need to modify this values due to samplingrate mismatches in essentia
+        duration: res.data.duration, // We need to modify this values due to samplingrate mismatches in essentia
         key: res.data.key,
         scale: res.data.scale,
         key_scale_strength: res.data.key_scale_strength,

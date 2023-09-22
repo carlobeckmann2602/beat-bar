@@ -34,10 +34,8 @@
 
 
 .hidden{
-    left: -60px;
     opacity: 0;
     transition: 200ms;
-    z-index: 1;
 }
 
 .levelBar{

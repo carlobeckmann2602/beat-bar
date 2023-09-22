@@ -66,7 +66,9 @@ export function getUuid(setUuid: Function, setError: Function, selectedMood: MOO
   })
 }
 
-export function setMood(uuid: string, selectedMood: MOODS, setCurrentPlaylistId: Function){
+export function setMood(uuid: string, selectedMood: MOODS, setCurrentPlaylistId: Function, setPlaylistLoading: Function){
+  setPlaylistLoading(true)
+  console.log("posting with: ", selectedMood)
   axios.post(
     `${apiBaseUrl}post/setmood/`,
     {
@@ -82,8 +84,10 @@ export function setMood(uuid: string, selectedMood: MOODS, setCurrentPlaylistId:
     }
   ).then((res)=>{
     if(res.status===200){
+      console.log(res.data)
       setCurrentPlaylistId(res.data.playlist_id)
     }
+    setPlaylistLoading(false)
   }).catch(e=>{
     console.log(e)
   })

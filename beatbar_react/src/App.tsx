@@ -1,11 +1,9 @@
 import "./App.css";
-import DeveloperOptions from "./components/developerOptions";
 import React, {useEffect, useState} from "react";
 import * as Tone from "tone";
-import {AllSongsUrls, BeatbarPlayerError, HALFTONES_MAP, MOODS, Song} from "./commons/types";
-import {ALL_SONGS, HALFTONESTEPS} from "./commons/commons";
+import {BeatbarPlayerError, HALFTONES_MAP, MOODS, Song} from "./commons/types";
+import {HALFTONESTEPS} from "./commons/commons";
 import Background from "./components/background/background";
-import {setMood} from './components/backendController'
 
 import playIcon from '../src/assets/icons/play.svg'
 import pauseIcon from '../src/assets/icons/pause.svg'
@@ -13,30 +11,25 @@ import skipIcon from '../src/assets/icons/skip.svg'
 import previousIcon from '../src/assets/icons/previous.svg'
 import MoodSelector from "./components/moodSelector/moodSelector";
 import ConsentBanner from "./components/consentBanner/consentBanner";
-import Cookies from 'universal-cookie';
 import VolumeControl from "./components/volumeControl/volumeControl";
 import {getSong} from "./components/playlistController";
 import {checkConsentCookie, checkStateCookie, handleSetConsentGiven, handleSetSelectedMood} from "./components/cookieController";
 import {formatTimeStamp} from "./components/helper/format";
-import {GrainPlayer, Param} from "tone";
-import {adjustPitchValue, adjustSpeedValue} from "./components/modulationController";
-import {wait} from "@testing-library/user-event/dist/utils";
 import {debugSong} from "./components/helper/debug";
 import {lerp} from "./components/helper/math";
+import LoadingScreen from "./components/loadingScreen/loadingScreen";
+import {setMood} from "./components/backendController";
 
 export default function App() {
-  const [showDeveloperOptions, setShowDeveloperOptions] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [player, setPlayer] = useState<Tone.GrainPlayer>();
   const [currentSong, setCurrentSong] = useState<Song>();
   const [nextSong, setNextSong] = useState<Song>();
-  const [currentPlaylistId, setCurrentPlaylistId] = useState(1)
+  const [currentPlaylistId, setCurrentPlaylistId] = useState<number>()
+  const [playlistLoading, setPlaylistLoading] = useState(false)
 
-  const [selectedMood, setSelectedMood] = useState<MOODS>(MOODS.focused)
+  const [selectedMood, setSelectedMood] = useState<MOODS>(MOODS.party)
 
-  const [nodesInitialized, setNodesInitialized] = useState(false);
-  const [volume, setVolume] = useState<number>(50);
-  const [panorama, setPanorama] = useState<number>(0);
   const [speedValue, setSpeedValue] = useState<number>(1);
   const [pitchNode, setPitchNode] = useState<Tone.PitchShift>();
   const [pitchValue, setPitchValue] = useState<number>(0);
@@ -46,14 +39,12 @@ export default function App() {
   const [uuid, setUuid] = useState<string>()
   const [error, setError] = useState<(BeatbarPlayerError | undefined)>(undefined)
 
-  const [songsInitiallySet, setSongsInitiallySet] = useState(false)
-
   const [timerTime, setTimerTime] = useState(0)
-  const [timerRunning, setTimerRunning] = useState(false)
-  const [crossFadeTime, setCrossFadeTime] = useState(15);
 
   const [isFading, setIsFading] = useState(false)
   const [isFirstSong, setIsFirstSong] = useState(true)
+
+  const [songPausedAt, setSongPausedAt] = useState(0)
 
   let bodyElement: HTMLElement | null;
 
@@ -136,13 +127,17 @@ export default function App() {
     checkConsentCookie(setConsentGiven)
   },[])
 
+  useEffect(()=>{
+    console.log("playlistLoading: ", playlistLoading)
+  }, [playlistLoading])
+
   /**
    * Save a local cookie with uuid and mood
    */
   useEffect(()=>{
     if(consentGiven){
       attachKeyboardHandler()
-      checkStateCookie(setUuid, selectedMood, setSelectedMood, setError)
+      checkStateCookie(setUuid, selectedMood, setSelectedMood, setCurrentPlaylistId, setError)
     }
   },[consentGiven])
 
@@ -150,7 +145,7 @@ export default function App() {
    * Set up the initial songs
    */
   useEffect(()=>{
-    if(consentGiven && uuid && selectedMood){
+    if(consentGiven && uuid && selectedMood && currentPlaylistId){
       getSong(currentPlaylistId).then(song=>{
         if(song){
           setCurrentSong(song)
@@ -162,7 +157,7 @@ export default function App() {
         }
       })
     }
-  }, [consentGiven, uuid, selectedMood])
+  }, [consentGiven, uuid, selectedMood, currentPlaylistId])
 
   /**
    * Set up the modification nodes
@@ -194,7 +189,7 @@ export default function App() {
         //player.onstop = skipSong
         player.playbackRate = speedValue
 
-        player.volume.value = (-12)
+
         let x = 0;
 
         let int = setInterval(()=>{
@@ -208,18 +203,25 @@ export default function App() {
         }, 20)
 
         if(isFirstSong){
-
-          player.start("0", "0").toDestination()
-
+          if(songPausedAt!==0){
+            player.start("0", songPausedAt).toDestination()
+            setSongPausedAt(0)
+          } else {
+            player.start("0", "0").toDestination()
+          }
           setIsFirstSong(false)
         } else {
-          player.start("0", currentSong?.cuepoint_in??"0").toDestination()
+          if(songPausedAt!==0){
+            player.start("0", songPausedAt).toDestination()
+            setSongPausedAt(0)
+          } else {
+            player.start("0", currentSong?.cuepoint_in??"0").toDestination()
+          }
+          setTimeout(()=>{
+            console.log("readjustModulation now?")
+            readjustModulation()
+          }, 20000)
         }
-
-        setTimeout(()=>{
-          console.log("readjustModulation now?")
-          readjustModulation()
-        }, 20000)
       } else {
         setSongIsPlaying(false)
         player.onstop = ()=>{}
@@ -231,22 +233,22 @@ export default function App() {
   function play(startAt: number = 0) {
     console.log("play")
     setIsPlaying(true);
-
   }
 
   function pause() {
     console.log("pause")
+    setSongPausedAt(timerTime)
     setIsPlaying(false);
   }
 
-  const skipSong = () => {
+  const skipSong = (isIntentionalSkip = false) => {
     console.log("skip song")
     setTimerTime(0);
-    if(currentSong && nextSong){
+    if(currentSong && nextSong && !isIntentionalSkip){
       adaptModulationForTransition(currentSong, nextSong)
     }
     setTimeout(()=>{
-      if(currentSong && nextSong){
+      if(currentSong && nextSong && currentPlaylistId){
         console.log("currentSong will be", nextSong.song_id)
 
         setCurrentSong(nextSong)
@@ -258,7 +260,6 @@ export default function App() {
             setNextSong(song)
           }
         })
-
         setIsFading(false)
       }
     }, 500)
@@ -275,7 +276,7 @@ export default function App() {
   function readjustModulation(){
     if(player){
       let x = 0;
-      let oldSpeed = speedValue;
+      const oldSpeed = speedValue;
       let oldPitch = pitchValue
 
       let int = setInterval(()=>{
@@ -298,14 +299,23 @@ export default function App() {
 
           clearInterval(int)
         }
-
+        x+=1;
       }, 100)
-      x+=1;
+
     }
   }
 
   function getHalftoneSteps(fromTone: string, toTone: string): number{
     return HALFTONESTEPS[HALFTONES_MAP[fromTone]][HALFTONES_MAP[toTone]]
+  }
+
+  function updateMood(mood: MOODS){
+    if(uuid){
+      setMood(uuid, mood, setCurrentPlaylistId, setPlaylistLoading)
+      if(player){
+        setIsPlaying(false)
+      }
+    }
   }
 
   return (
@@ -318,16 +328,22 @@ export default function App() {
           />:
           <></>
       }
+      {
+        playlistLoading?
+          <LoadingScreen/>:
+          ''
+      }
       <Background />
       <div className="content">
         <div className="top-line">
           <div>
             <MoodSelector
-              handleSetSelectedMood={handleSetSelectedMood}
               selectedMood={selectedMood}
-              uuid={uuid}
+              uuid={uuid??'00000000-0000-0000-0000-000000000000'}
               setCurrentPlaylist={setCurrentPlaylistId}
               setSelectedMood={setSelectedMood}
+              setPlaylistLoading={setPlaylistLoading}
+              updateMood={updateMood}
             />
           </div>
           <h1>beat.bar</h1>
@@ -342,13 +358,16 @@ export default function App() {
               <span className="control-option-label">s</span> sad mood
             </li>
             <li>
-              <span className="control-option-label">c</span> chill mood
+              <span className="control-option-label">r</span> relaxed mood
             </li>
             <li>
-              <span className="control-option-label">f</span> focused mood
+              <span className="control-option-label">a</span> aggressive mood
             </li>
             <li>
               <span className="control-option-label">h</span> happy mood
+            </li>
+            <li>
+              <span className="control-option-label">p</span> party mood
             </li>
           </ul>
         </div>
@@ -377,7 +396,13 @@ export default function App() {
             <button><img src={previousIcon} alt={"previous icon to jump to the previous song"} /></button>
             <button
               onClick={()=>{
-                readjustModulation()
+                if(player){
+                  player.onstop = ()=>{}
+                  player.stop()
+                  setIsFading(true)
+                  skipSong(true)
+                }
+
               }}
             ><img src={skipIcon} alt={"skip icon to jump to the next song"} /></button>
             <VolumeControl />
@@ -402,56 +427,3 @@ export default function App() {
     </div>
   );
 }
-
-
-/*
-<DeveloperOptions
-            setShowDeveloperOptions={setShowDeveloperOptions}
-            initializePlayer={initializePlayer}
-            play={play}
-            pause={pause}
-            player={player}
-            players={players}
-            setPlayer={setPlayer}
-            isPlaying={isPlaying}
-            setIsPlaying={setIsPlaying}
-            currentSong={currentSong}
-            setCurrentSong={handleSetCurrentSong}
-            nodesInitialized={nodesInitialized}
-            setNodesInitialized={setNodesInitialized}
-            volume={volume}
-            adjustVolume={adjustVolume}
-            panorama={panorama}
-            adjustPanorama={adjustPanorama}
-            speed={speed}
-            adjustSpeed={adjustSpeed}
-            pitch={pitch}
-            adjustPitch={adjustPitch}
-            pitchNode={pitchNode}
-            setPitchNode={setPitchNode}
-            uuid={uuid}
-            consentGiven={consentGiven}
-            error={error}
-            setError={setError}
-          />
-
-
-
-          <label htmlFor={"speedControl"}>Speed</label>
-          <input type={"number"} value={speedValue} onChange={e=>setSpeedValue(parseInt(e.target.value))}/>
-          <input
-            type="range"
-            min={"1"}
-            max={"200"}
-            id="speedControl"
-            value={speedValue * 100}
-            onChange={(e)=>
-              adjustSpeedValue(parseInt(e.target.value), setSpeedValue, player)
-            } />
-
-
-<label htmlFor={"pitchControl"}>Pitch</label>
-          <input type="number" id="pitchControl" onChange={(e)=>adjustPitchValue(parseInt(e.target.value), setPitchValue, player)} value={pitchValue}/>
-
-
- */
