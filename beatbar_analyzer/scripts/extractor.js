@@ -63,6 +63,7 @@ httpRequest.onreadystatechange = handler;
 
 let postUrl = "";
 let apiToken = "YEGmtC4QKGIQQK4qGuRD55q48JIkKazWEnDvQIcDYaA=";
+let bunchUpload = false;
 
 const postRouteInput = document.getElementById("post-route");
 if (postRouteInput) {
@@ -185,12 +186,16 @@ if (setInputButton) {
   if (inputUrl) {
     setInputButton.addEventListener("click", () => {
       fetchUrl = inputUrl.value.toString();
-      postRouteInput.value =
-        "http://localhost:8000/api/post/properties/?song_id=" +
-        fetchUrl.split("/")[3];
-      postUrl =
-        "http://localhost:8000/api/post/properties/?song_id=" +
-        fetchUrl.split("/")[3];
+      if (fetchUrl.split("/")[3] != "") {
+        postRouteInput.value =
+          "http://localhost:8000/api/post/properties/?song_id=" +
+          fetchUrl.split("/")[3];
+        postUrl =
+          "http://localhost:8000/api/post/properties/?song_id=" +
+          fetchUrl.split("/")[3];
+      } else {
+        bunchUpload = true;
+      }
       displayInputUrl.innerHTML = inputUrl.value.toString();
       displayInputUrl.href = inputUrl.value.toString();
     });
@@ -220,19 +225,42 @@ EssentiaWASM().then((EssentiaWasm) => {
 
 function continueHandler() {
   console.log("Starting");
-  if (progessSpinner) {
-    progessSpinner.classList.remove("non-displayed");
-  }
   audioCtx.resume().then(async (res) => {
     console.log("Audio Context has been resumed! ", res);
-    await analyze();
+    if (bunchUpload) {
+      fetch(fetchUrl)
+        .then((response) => {
+          return response.text();
+        })
+        .then(async function (html) {
+          // Convert the HTML string into a document object
+          let parser = new DOMParser();
+          let doc = parser.parseFromString(html, "text/html");
+
+          let a = Array.from(doc.querySelectorAll("a.file.mp3")); //.slice(25);
+          for (const item of a) {
+            if (progessSpinner) {
+              progessSpinner.classList.remove("non-displayed");
+            }
+            await analyze(fetchUrl + item.innerHTML);
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    } else {
+      if (progessSpinner) {
+        progessSpinner.classList.remove("non-displayed");
+      }
+      await analyze(fetchUrl);
+    }
   });
 }
 
-async function analyze() {
+async function analyze(audioURL) {
   console.log("audioCtx: ", audioCtx);
 
-  const audioURL = fetchUrl; //"https://freesound.org/data/previews/328/328857_230356-lq.mp3";
+  //const audioURL = fetchUrl; //"https://freesound.org/data/previews/328/328857_230356-lq.mp3";
 
   console.log("audioUrl: ", audioURL);
   if (!audioURL) {
@@ -306,6 +334,13 @@ async function analyze() {
   moods = moods.slice(0, -2);
   displayMoods.innerHTML = JSON.stringify(moods);
   essentia_properties.moods = moods;
+
+  if (bunchUpload) {
+    postUrl =
+      "http://localhost:8000/api/post/properties/?song_id=" +
+      audioURL.split("/")[3];
+    postResults();
+  }
 
   if (progessSpinner) {
     progessSpinner.classList.add("non-displayed");
@@ -385,7 +420,8 @@ function postResults() {
     })
   );
 
-  if (fetchUrl.split("/")[3]) {
+  if (fetchUrl.split("/")[3] || bunchUpload) {
+    console.log("Post Essentia Properties");
     httpRequest.open("POST", postUrl, true);
     httpRequest.setRequestHeader("X-Beatbar-ApiToken", apiToken);
     httpRequest.setRequestHeader("Content-Type", "application/json");
