@@ -7,25 +7,31 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
-def handle_uploaded_file(f):
+""" Function for upload and analyse songs per django. Not in use anymore """
+"""def handle_uploaded_file(f):
     path = os.path.join(settings.BASE_DIR, "src/assets/songs/", os.path.basename(f.name))
     with open(path, "wb+") as destination:
         for chunk in f.chunks():
-            destination.write(chunk)
+            destination.write(chunk)"""
 
+""" Create new playlist for given mood. """
 def create_new_playlist(mood):
-    print('New Playlist Mood: ' + mood)
+    #print('New Playlist Mood: ' + mood)
 
+    #get all songs with given mood
     songs_list = []
     for property in EssentiaProperties.objects.filter(moods__contains = [mood]):
         songs_list.append(property.song.id)
 
+    #create dataframe with songs
     songs = pd.DataFrame({'song_id': songs_list})
     
+    #choose random song as start song of playlist
     start_song_id = songs.sample().song_id.iloc[0]
     prev_song_id = start_song_id
     songs = songs[songs.song_id != prev_song_id]
     
+    #order songs by similarity
     playlist_songs = [Song.objects.get(id = prev_song_id)]
     while not songs.empty:
         next_song_id = get_song_with_best_similarity(prev_song_id, songs)
@@ -33,6 +39,7 @@ def create_new_playlist(mood):
         songs = songs[songs.song_id != next_song_id]
         prev_song_id = next_song_id
 
+    #create new playlist with calculatet order and songs
     playlist = Playlist(next_song_id = Song.objects.get(id = start_song_id).song_id, order = [song.id for song in playlist_songs])
     playlist.save()
     for song in playlist_songs:
@@ -41,6 +48,7 @@ def create_new_playlist(mood):
 
     return playlist
 
+""" Calculate song with best similarity to given song of given songs list """
 def get_song_with_best_similarity(song_id, songs):
     song = Song.objects.get(id = song_id)
 
@@ -55,6 +63,7 @@ def get_song_with_best_similarity(song_id, songs):
 
     return similarities.song_id.iloc[0]
 
+""" Change mood of user by calculating new playlist and removing old playlist"""
 def change_users_mood(user, mood):
     new_playlist = create_new_playlist(mood)
 
@@ -66,6 +75,7 @@ def change_users_mood(user, mood):
 
     return new_playlist.id
 
+""" Add new song to Database or update song if already existing """
 def add_song_to_database(song_data):
     if Artist.objects.filter(name = song_data['artist_name']):
         artist = Artist.objects.get(name = song_data['artist_name'])
@@ -104,6 +114,7 @@ def add_song_to_database(song_data):
 
     return artist.pk, album.pk
 
+""" Update or create Essentia properties of song """
 def update_properties(song_id, properties):
     song = Song.objects.get(song_id = song_id)
 
@@ -137,9 +148,11 @@ def update_properties(song_id, properties):
 
     calculate_song_similarities(song)
 
+""" Calculate all similarities between given song and all other songs in database """
 def calculate_song_similarities(song):
-    print('\n Calculate Similarities for Song: ' + song.title + '\n')
+    #print('\n Calculate Similarities for Song: ' + song.title + '\n')
 
+    #get all songs from database
     essentia_data = pd.DataFrame(list(EssentiaProperties.objects.all().values()))
     essentia_data = essentia_data.drop('id', axis=1)
     essentia_data = essentia_data.rename(columns={'song_id': 'id'})
@@ -152,33 +165,40 @@ def calculate_song_similarities(song):
 
     data_without_song = data[data['song_id']!=song.song_id]
     
+    #calculate tfidf vectoren with all songs
     song_vectorizer = TfidfVectorizer(ngram_range=(1, 2))
     data['moods'] = data['moods'].apply(lambda x: ' '.join(x))
     text_data = data[['title', 'artist_id', 'album_id', 'key', 'scale', 'moods']].agg(' '.join, axis=1)
     tfidf_vectors = song_vectorizer.fit_transform(text_data)
 
+    #calculate similarity between given song and all other songs
     for other_song_id in data_without_song.song_id:
         if Similarity.objects.filter(song_1 = Song.objects.get(song_id = other_song_id), song_2 =  song):
             calculate_similarity(other_song_id, song.song_id, tfidf_vectors, data)
         else:
             calculate_similarity(song.song_id, other_song_id, tfidf_vectors, data)
 
+""" Calculate similarity between to songs """
 def calculate_similarity(song_id_1, song_id_2, tfidf_vectors, data):
+    #meta data of first song
     text_array1 = tfidf_vectors[data.index[data['song_id'] == song_id_1].tolist()[0], :]
     num_array1 = data[data['song_id']==song_id_1].select_dtypes(include=np.number).to_numpy()
 
+    #meta data of second song
     text_array2 = tfidf_vectors[data.index[data['song_id'] == song_id_2], :]
     num_array2 = data[data['song_id']==song_id_2].select_dtypes(include=np.number).to_numpy()
 
+    #calculate similarity between text and numeric data
     text_sim = cosine_similarity(text_array1, text_array2).flatten()[0]
     num_sim = cosine_similarity(num_array1, num_array2)[0][0]
     sim = num_sim + text_sim
 
-    print(f'Similarity between {song_id_1} and {song_id_2}: {str(sim)} (Text: {text_sim}, Numerisch: {num_sim})')
+    #print(f'Similarity between {song_id_1} and {song_id_2}: {str(sim)} (Text: {text_sim}, Numerisch: {num_sim})')
 
     song_1 = Song.objects.get(song_id = song_id_1)
     song_2 = Song.objects.get(song_id = song_id_2)
 
+    #save calculated similarity to database
     if Similarity.objects.filter(song_1 = song_1, song_2 = song_2):
         similarity_filter = Similarity.objects.filter(song_1 = song_1, song_2 = song_2)
         similarity_filter.update(song_1 = song_1, 

@@ -20,7 +20,7 @@ from src import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('upload/', views.upload_file, name="Upload LoFi Songs"),
+    #path('upload/', views.upload_file, name="Upload LoFi Songs"),
 
     # General Routes
     re_path(r'^api/beatbar/$', views.beatbar_info),

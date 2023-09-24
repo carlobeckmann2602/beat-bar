@@ -14,8 +14,8 @@ from .models import *
 from .serializers import *
 
 # Backend Views
-
-class FileFieldFormView(FormView):
+""" Function for upload and analyse songs per django. Not in use anymore """
+"""class FileFieldFormView(FormView):
     form_class = FileFieldForm
     template_name = "upload.html"  # Replace with your template.
     success_url = "reverse()"  # Replace with your URL or reverse().
@@ -43,7 +43,7 @@ def upload_file(request):
                 handle_uploaded_file(file)
     else:
         form = FileFieldForm()
-    return render(request, 'upload.html', {'form': form})
+    return render(request, 'upload.html', {'form': form})"""
 
 api_token = 'YEGmtC4QKGIQQK4qGuRD55q48JIkKazWEnDvQIcDYaA='
 
@@ -85,6 +85,7 @@ def beatbar_info(request):
     
 # GET Routes
 
+""" Get next song properties of playlist. ID given as parameter """
 @api_view(['GET'])
 def next_song(request):
     if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
@@ -116,6 +117,7 @@ def next_song(request):
 
 # POST Routes
 
+""" Register a new user and give him a new uuid """
 @api_view(['POST'])
 def register(request):
     if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
@@ -128,6 +130,7 @@ def register(request):
     }
     return Response(response, status=status.HTTP_201_CREATED)
 
+""" Create new playlist for given mood and delete old playlist of user """
 @api_view(['POST'])
 def set_mood(request):
     if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
@@ -144,6 +147,7 @@ def set_mood(request):
     }
     return Response(response, status=status.HTTP_200_OK)
 
+""" Add song to database """
 @api_view(['POST'])
 def add_song(request):
     if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
@@ -154,7 +158,8 @@ def add_song(request):
         'album_id': album_id,
     }
     return Response(response, status=status.HTTP_201_CREATED)
-    
+
+""" Update Essentia properties of song """
 @api_view(['POST', 'PUT'])
 def update_song_properties(request):
     if not check_api_token(request): return Response('API-Token is not correct!', status=status.HTTP_401_UNAUTHORIZED)
