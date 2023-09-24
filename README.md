@@ -58,6 +58,8 @@ It is not stored in the frontend itself to provide faster loading times and a lo
 
 The console should now prompt that an application is serving content on 'http://localhost:3001'
 
+To get all song download these example songs https://1drv.ms/f/s!Ali17ffsDz5dipUW4b04vZLsGOVFnQ?e=Im3mAh and put them into the content folder.
+
 # Beatbar Player (React App)
 
 This is the actual frontend web player for the endusers.
