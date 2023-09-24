@@ -50,7 +50,6 @@ Change to directory 'beatbar_django' `cd beatbar_django`
 The CDN server stores the songs, that can be played through the frontend. 
 It is not stored in the frontend itself to provide faster loading times and a loose-coupling-architecture
 
-
 1. Open a new terminal in the directory where this readme file is also located
 2. Change the directory. I.e. by running: `cd beatbar_cdn`
 3. Run `npm install` to install the node dependencies. 
