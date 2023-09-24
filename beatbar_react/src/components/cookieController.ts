@@ -7,7 +7,7 @@ export function checkConsentCookie(setConsentGiven: Function){
   let consentGivenCookie = cookies.get('beatbar-consentGiven')
   if(consentGivenCookie === "true"){
     setConsentGiven(true)
-    console.log("consent has been given. Will set it now in state")
+    // console.log("consent has been given. Will set it now in state")
   }
 }
 

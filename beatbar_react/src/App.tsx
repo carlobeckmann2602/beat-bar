@@ -9,16 +9,17 @@ import playIcon from '../src/assets/icons/play.svg'
 import pauseIcon from '../src/assets/icons/pause.svg'
 import skipIcon from '../src/assets/icons/skip.svg'
 import stopIcon from '../src/assets/icons/stop.svg'
+import helpIcon from '../src/assets/icons/help.svg'
 import MoodSelector from "./components/moodSelector/moodSelector";
 import ConsentBanner from "./components/consentBanner/consentBanner";
 import VolumeControl from "./components/volumeControl/volumeControl";
 import {getSong} from "./components/playlistController";
 import {checkConsentCookie, checkStateCookie, handleSetConsentGiven} from "./components/cookieController";
 import {formatTimeStamp} from "./components/helper/format";
-import {debugSong} from "./components/helper/debug";
 import {lerp} from "./components/helper/math";
 import LoadingScreen from "./components/loadingScreen/loadingScreen";
 import {setMood} from "./components/backendController";
+import HelpScreen from "./components/helpScreen/helpScreen";
 
 export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -47,6 +48,7 @@ export default function App() {
 
   const [songPausedAt, setSongPausedAt] = useState(0)
 
+  const [showHelp, setShowHelp] = useState(false)
   let bodyElement: HTMLElement | null;
 
 
@@ -57,7 +59,7 @@ export default function App() {
   function keyboardHandler(event: KeyboardEvent){
     if (event.code === 'Space'){
       event.preventDefault()
-      console.log("isPlaying: ", isPlaying)
+      // console.log("isPlaying: ", isPlaying)
       isPlaying?
         pause():
         play()
@@ -80,13 +82,13 @@ export default function App() {
   }
 
   useEffect(()=>{
-    console.log("volume: ", volume)
+    // console.log("volume: ", volume)
   }, [volume])
 
   function attachKeyboardHandler(){
     bodyElement = document.getElementById('body-id')
     if(bodyElement){
-      console.log("run only once")
+      // console.log("run only once")
       bodyElement.addEventListener('keydown', (event)=>{keyboardHandler(event)})
     }
   }
@@ -106,10 +108,10 @@ export default function App() {
       if (timerTime >= (currentSong.cuepoint_out)){
         if(!isFading){
           setIsFading(true)
-          console.log("timerTime: ", timerTime)
-          console.log("currentSong.duration: ", currentSong.duration)
-          console.log("currentSong.cuepoint_out: ", currentSong.cuepoint_out)
-          console.log("DO FADE")
+          // console.log("timerTime: ", timerTime)
+          // console.log("currentSong.duration: ", currentSong.duration)
+          // console.log("currentSong.cuepoint_out: ", currentSong.cuepoint_out)
+          // console.log("DO FADE")
           skipSong()
         }
       }
@@ -131,7 +133,7 @@ export default function App() {
   },[])
 
   useEffect(()=>{
-    console.log("playlistLoading: ", playlistLoading)
+    // console.log("playlistLoading: ", playlistLoading)
   }, [playlistLoading])
 
   /**
@@ -141,6 +143,7 @@ export default function App() {
     if(consentGiven){
       attachKeyboardHandler()
       checkStateCookie(setUuid, selectedMood, setSelectedMood, setCurrentPlaylistId, setError)
+      updateMood(MOODS.party);
     }
   },[consentGiven])
 
@@ -173,7 +176,7 @@ export default function App() {
    * Put the new song into the player once it is set into currentSong
    */
   useEffect(()=>{
-    console.log("Put the new song into the player once it is set into currentSong")
+    // console.log("Put the new song into the player once it is set into currentSong")
     if(currentSong){
       const _player = new Tone.GrainPlayer(currentSong.url, ()=>{
         setPlayer(_player)
@@ -185,7 +188,7 @@ export default function App() {
    * play the player once it is set or play/pause has been triggered
    */
   useEffect(()=>{
-    console.log("play the player once it is set")
+    // console.log("play the player once it is set")
     if(player){
       if(isPlaying){
         setSongIsPlaying(true)
@@ -221,7 +224,7 @@ export default function App() {
             player.start("0", currentSong?.cuepoint_in??"0").toDestination()
           }
           setTimeout(()=>{
-            console.log("readjustModulation now?")
+            // console.log("readjustModulation now?")
             readjustModulation()
           }, 20000)
         }
@@ -236,36 +239,36 @@ export default function App() {
   useEffect(()=>{
     if(player){
       player.volume.value = -50 * (1 - volume)
-      console.log(player.volume.value)
+      // console.log(player.volume.value)
     }
   }, [volume])
 
-  function play(startAt: number = 0) {
-    console.log("play")
+  function play() {
+    // console.log("play")
     setIsPlaying(true);
   }
 
   function pause() {
-    console.log("pause")
+    // console.log("pause")
     setSongPausedAt(timerTime)
     setIsPlaying(false);
   }
 
   const skipSong = (isIntentionalSkip = false) => {
-    console.log("skip song")
+    // console.log("skip song")
     setTimerTime(0);
     if(currentSong && nextSong && !isIntentionalSkip){
       adaptModulationForTransition(currentSong, nextSong)
     }
     setTimeout(()=>{
       if(currentSong && nextSong && currentPlaylistId){
-        console.log("currentSong will be", nextSong.song_id)
+        // console.log("currentSong will be", nextSong.song_id)
 
         setCurrentSong(nextSong)
 
         getSong(currentPlaylistId).then(song=>{
           // @ts-ignore
-          console.log("nextSong will be", song.song_id)
+          // console.log("nextSong will be", song.song_id)
           if(song){
             setNextSong(song)
           }
@@ -276,7 +279,7 @@ export default function App() {
   }
 
   function adaptModulationForTransition(fromSong: Song, toSong: Song){
-    console.log("adaptModulationForTransition")
+    // console.log("adaptModulationForTransition")
     if(fromSong && toSong){
       setSpeedValue(fromSong.bpm/toSong.bpm)
       // setPitchValue(getHalftoneSteps(fromSong.key, toSong.key) * 100)
@@ -291,7 +294,7 @@ export default function App() {
 
       let int = setInterval(()=>{
         let y = 1 - (Math.cos((x/100)*Math.PI)/2+.5) + 0.001
-        console.log(y)
+        // console.log(y)
 
         // setPitchValue(lerp(1 - oldPitch, 0, y))
         setSpeedValue(lerp(oldSpeed, 1, y))
@@ -322,7 +325,7 @@ export default function App() {
   function updateMood(_mood: MOODS){
     if(uuid){
       setMood(uuid, _mood, setCurrentPlaylistId, setPlaylistLoading)
-      console.log("updating mood to", _mood)
+      // console.log("updating mood to", _mood)
       if(player){
         setIsPlaying(false)
       }
@@ -344,6 +347,13 @@ export default function App() {
           <LoadingScreen/>:
           ''
       }
+      {
+        showHelp?
+          <HelpScreen
+            setShowHelp={setShowHelp}
+          />:
+          ''
+      }
       <Background />
       <div className="content">
         <div className="top-line">
@@ -356,6 +366,11 @@ export default function App() {
               setPlaylistLoading={setPlaylistLoading}
               updateMood={updateMood}
             />
+            <ul className="control-options">
+              <li>
+                <span onClick={()=>{setShowHelp(true)}} className="control-option-label"><img alt="help icon to display help screen" src={helpIcon} /></span>need help?
+              </li>
+            </ul>
           </div>
           <h1>beat.bar</h1>
           <ul className="control-options">
@@ -378,17 +393,6 @@ export default function App() {
               <span className="control-option-label">p</span> party mood
             </li>
           </ul>
-        </div>
-        <div>
-
-          <p>current BPM: {speedValue}</p>
-          <p>current  Pitch: {pitchValue}</p>
-          <div>
-            <p>Current</p>
-            {currentSong?debugSong(currentSong):''}
-            <p>Next</p>
-            {nextSong?debugSong(nextSong):''}
-          </div>
         </div>
         <div className="bottom-line">
           <div className="control-buttons">

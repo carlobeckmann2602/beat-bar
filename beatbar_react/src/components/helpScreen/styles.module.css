@@ -1,0 +1,49 @@
+.helpScreenBackground{
+    width: 100vw;
+    height: 100vh;
+    background  : rgba(84, 84, 84, 0.84);
+    position: absolute;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.helpScreen{
+    width: 750px;
+    height: 430px;
+    background: black;
+    border-radius: 20px;
+    padding: 50px;
+    position: relative;
+}
+
+.helpScreenTitle, .helpScreenParagraph{
+    color: white;
+}
+
+.helpScreenButton{
+    font-family: "Space Mono", sans-serif;
+    font-size: 1.2em;
+    width: 120px;
+    height: 40px;
+    border: none;
+    background: var(--bb-light-grey-color);
+    box-shadow: var(--bb-violet-shadow);
+    transition: 200ms;
+    position: absolute;
+    bottom: 50px;
+    right: 50px;
+    cursor: pointer;
+}
+
+.helpScreenButton:hover{
+    width: 120px;
+    height: 40px;
+    border: none;
+    color: var(--bb-light-grey-color);
+    background: var(--bb-violet-color);
+    box-shadow: var(--bb-violet-shadow);
+    transition: 200ms;
+}

@@ -5,7 +5,7 @@ import {apiBaseUrl} from "../commons/commons";
 
 // @ts-ignore
 export function getUuid(setUuid: Function, setError: Function, selectedMood: MOODS){
-  console.log("uuid has not been found. Will request it now")
+  // console.log("uuid has not been found. Will request it now")
   axios.post(
     `${apiBaseUrl}post/register/`,
     null,
@@ -22,7 +22,7 @@ export function getUuid(setUuid: Function, setError: Function, selectedMood: MOO
       cookies.set('beatbar-state', JSON.stringify({uuid: res.data.user_id, mood: selectedMood}), { path: '/', expires: new Date(Date.now() + 31556926000) });
     }
   }).catch(err=>{
-    console.log(err)
+    // console.log(err)
     if(err.code==="ERR_NETWORK"){
       setError({
         code: 503,
@@ -68,7 +68,7 @@ export function getUuid(setUuid: Function, setError: Function, selectedMood: MOO
 
 export function setMood(uuid: string, selectedMood: MOODS, setCurrentPlaylistId: Function, setPlaylistLoading: Function){
   setPlaylistLoading(true)
-  console.log("posting with: ", selectedMood)
+  // console.log("posting with: ", selectedMood)
   axios.post(
     `${apiBaseUrl}post/setmood/`,
     {
@@ -84,7 +84,7 @@ export function setMood(uuid: string, selectedMood: MOODS, setCurrentPlaylistId:
     }
   ).then((res)=>{
     if(res.status===200){
-      console.log(res.data)
+      // console.log(res.data)
       setCurrentPlaylistId(res.data.playlist_id)
     }
     setPlaylistLoading(false)

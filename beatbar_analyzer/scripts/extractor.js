@@ -56,7 +56,7 @@ const httpRequest = new XMLHttpRequest();
 const threshold = 0.5;
 
 function handler(event) {
-  console.log(event.target.response);
+  // console.log(event.target.response);
 }
 
 httpRequest.onreadystatechange = handler;
@@ -220,13 +220,13 @@ EssentiaWASM().then((EssentiaWasm) => {
   );
 
   // prints version of the essentia wasm backend
-  console.log("essentia.js successfully loaded in Version: ", essentia.version);
+  // console.log("essentia.js successfully loaded in Version: ", essentia.version);
 });
 
 function continueHandler() {
-  console.log("Starting");
+  // console.log("Starting");
   audioCtx.resume().then(async (res) => {
-    console.log("Audio Context has been resumed! ", res);
+    // console.log("Audio Context has been resumed! ", res);
     if (bunchUpload) {
       fetch(fetchUrl)
         .then((response) => {
@@ -246,7 +246,7 @@ function continueHandler() {
           }
         })
         .catch(function (error) {
-          console.log(error);
+          // console.log(error);
         });
     } else {
       if (progessSpinner) {
@@ -258,11 +258,11 @@ function continueHandler() {
 }
 
 async function analyze(audioURL) {
-  console.log("audioCtx: ", audioCtx);
+  // console.log("audioCtx: ", audioCtx);
 
   //const audioURL = fetchUrl; //"https://freesound.org/data/previews/328/328857_230356-lq.mp3";
 
-  console.log("audioUrl: ", audioURL);
+  // console.log("audioUrl: ", audioURL);
   if (!audioURL) {
     return;
   }
@@ -389,19 +389,19 @@ function twoValuesAverage(arrayOfArrays) {
 }
 
 function setPostUrl(e) {
-  console.log("setting post route: ", e.target.value);
+  // console.log("setting post route: ", e.target.value);
   postUrl = e.target.value;
 }
 
 function setApiToken(e) {
-  console.log("setting api token: ", e.target.value);
+  // console.log("setting api token: ", e.target.value);
   apiToken = e.target.value;
 }
 
 function postResults() {
-  console.log("doing request");
-  console.log("url", postUrl);
-  console.log("x-beatbar-apitoken", apiToken);
+  // console.log("doing request");
+  // console.log("url", postUrl);
+  // console.log("x-beatbar-apitoken", apiToken);
   console.log(
     "body",
     JSON.stringify({
@@ -421,7 +421,7 @@ function postResults() {
   );
 
   if (fetchUrl.split("/")[3] || bunchUpload) {
-    console.log("Post Essentia Properties");
+    // console.log("Post Essentia Properties");
     httpRequest.open("POST", postUrl, true);
     httpRequest.setRequestHeader("X-Beatbar-ApiToken", apiToken);
     httpRequest.setRequestHeader("Content-Type", "application/json");

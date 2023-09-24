@@ -1,8 +1,7 @@
 import styles from './styles.module.css'
 import {useEffect, useState} from "react";
 import {MOODS} from "../../commons/types";
-import {handleSetSelectedMood, updateMoodInCookie} from "../cookieController";
-import {setMood} from "../backendController";
+import {updateMoodInCookie} from "../cookieController";
 
 type MoodSelectorProps = {
   selectedMood: MOODS,
@@ -18,7 +17,7 @@ export default function MoodSelector(props: MoodSelectorProps){
   const [selectionExpanded, setSelectionExpanded]=useState(false)
 
   useEffect(()=>{
-    console.log("i would like to post now: ", selectedMood)
+    // console.log("i would like to post now: ", selectedMood)
     props.updateMood(selectedMood)
     updateMoodInCookie(selectedMood)
   }, [selectedMood])

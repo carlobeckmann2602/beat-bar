@@ -40,11 +40,26 @@ h6 {
 
 .control-options {
   list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 
-.control-option-label {
+.control-options > li{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+
+}
+
+.control-option-label{
   color: var(--bb-violet-color);
   text-shadow: var(--bb-violet-shadow);
+}
+
+.control-option-label > img{
+  filter: invert(1) drop-shadow(var(--bb-violet-shadow));
+  cursor: pointer;
 }
 
 .control-options {

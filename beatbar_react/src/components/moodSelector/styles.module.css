@@ -1,4 +1,5 @@
 .moodSelector {
+    margin-bottom: 20px;
     font-family: "Space Mono", sans-serif;
     font-weight: 400;
     color: var(--bb-light-grey-color);
