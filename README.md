@@ -13,8 +13,9 @@ To run beat.bar locally you need:
 4. **OPTIONAL** The Beatbar Analyzer Tool
 - Requires npm to be installed
 
-After you performed all the Steps below, you should be able to find the beat.bar at you local machine runnung on http://localhost:3002
-To start using the beat.bar, accept the technical requirements and then select a mood (in the top left) to load a playlist. Afterward you can press the play button in the bottom control button bar.
+After you performed all the Steps below, you should be able to find the beat.bar at you local machine running on http://localhost:3002.
+
+To start using the beat.bar, accept the technical requirements you are prompted with, and then select a mood (in the top left) to load a playlist. Afterward you can press the play button in the bottom control button bar.
 
 
 # Django Server
